@@ -1,0 +1,11 @@
+.DS_Store
+# LaTeX build files
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+# not for a public repo: a screenshot with the lab's phone number and address, and a laptop login screen
+images/IMG_0214.PNG
+images/IMG_0213.jpeg

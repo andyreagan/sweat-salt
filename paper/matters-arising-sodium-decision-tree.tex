@@ -1,0 +1,148 @@
+% Matters Arising for Performance Nutrition (BMC / Springer Nature).
+% Build: latexmk -pdf matters-arising-sodium-decision-tree.tex
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{authblk}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{setspace}
+
+\setlength{\parskip}{0.5\baselineskip}
+\setlength{\parindent}{0pt}
+\onehalfspacing
+
+% shorthand for ionic concentrations and units
+\newcommand{\Na}{[\mathrm{Na}^{+}]}
+\newcommand{\K}{[\mathrm{K}^{+}]}
+\newcommand{\mmolL}{mmol\,L$^{-1}$}
+\newcommand{\Lh}{L\,h$^{-1}$}
+\newcommand{\fstar}{f^{*}}
+
+\title{Duration is a proxy, not a variable: a computed decision procedure for sodium replacement during exercise}
+
+\author[1,2]{Andrew J.\ Reagan}
+\affil[1]{Data Science, MassMutual, Springfield, MA, USA}
+\affil[2]{University of California, Berkeley, CA, USA}
+\affil[ ]{Corresponding author: \href{mailto:andrew.j.reagan@berkeley.edu}{andrew.j.reagan@berkeley.edu}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Matters Arising from:} McCubbin AJ. Sodium intake for athletes before, during and after exercise: review and recommendations. \textit{Performance Nutrition}. 2025;1:11.
+
+\begin{abstract}
+\noindent McCubbin's review provides the most complete synthesis to date of sodium replacement evidence for athletes, and its central conclusion, that sodium should be planned relative to fluid balance rather than replaced in isolation, is correct and overdue. The practical decision tree offered in Figure~3, however, does not compute what the review's own text describes. It gates sodium replacement on exercise duration ($>$4~h) and sweat rate ($<$1800~mL\,h$^{-1}$) as proxies for the variable that actually governs plasma sodium: the fraction of sweat loss replaced, relative to a crossover fraction that depends only on sweat composition. Rearranging the Kurtz--Nguyen equation shows that this crossover, $\fstar = 1 - 1.03(\Na_{\mathrm{sweat}} + \K_{\mathrm{sweat}})/(\Na_{\mathrm{plasma}} + 23.8)$, is independent of body mass, total body water and duration. For a whole-body sweat sodium of 80~\mmolL{} it falls to ${\sim}47\%$, a replacement fraction achievable in events well under 4~h. Duration re-enters only as a magnitude term. We propose a five-step procedure that begins with total fluid loss (sweat rate $\times$ duration), applies a maximum tolerable intake rate, derives the achievable replacement fraction and projected body mass deficit, and introduces sweat sodium only at the final step, where it is compared against $\fstar$ and, if exceeded, used to compute a dose. The procedure yields two continuous outputs, projected body mass deficit and projected plasma sodium, in place of binary gates. It returns the same answer as the original tree for the majority of athletes, but with a defensible derivation and correct handling of the edge cases the tree currently excludes.
+\end{abstract}
+
+\noindent\textbf{Keywords:} sodium; hydration; sweat; hyponatraemia; Kurtz--Nguyen; decision support; fluid replacement
+
+\section*{Main text}
+
+\subsection*{The review is right; the figure is a shortcut}
+
+McCubbin's review~\cite{mccubbin2025} reaches a conclusion that the field has needed stated plainly: because sweat is hypotonic to plasma, plasma sodium rises during exercise unless a large fraction of fluid losses is replaced, and sodium replacement is therefore a question about fluid balance, not about sodium balance. The three practitioner questions posed in the text (would $>$70\% fluid replacement help, can the athlete tolerate it, is it practical), together with Equation~3 and the sodium-requirement matrix in Figure~2, already constitute a continuous calculation. Our concern is only that Figure~3, the decision tree most practitioners will actually use, replaces that calculation with categorical proxies, and in doing so excludes a set of realistic sub-4~h scenarios in which the review's own model predicts a falling plasma sodium.
+
+\subsection*{The crossover fraction depends only on sweat composition}
+
+The review notes that, for a whole-body sweat sodium of 50~\mmolL{}, plasma sodium is expected to fall once approximately 70\% of fluid losses are replaced. This figure is specific to 50~\mmolL{}. Setting post-exercise plasma sodium equal to pre-exercise in the Kurtz--Nguyen equation~\cite{kurtz2003}, with no sodium intake and negligible urine output, gives the replacement fraction at which plasma sodium neither rises nor falls:
+\begin{equation}
+\fstar = 1 - \frac{1.03\,\bigl(\Na_{\mathrm{sweat}} + \K_{\mathrm{sweat}}\bigr)}{\Na_{\mathrm{plasma,pre}} + 23.8}.
+\label{eq:fstar}
+\end{equation}
+Body mass, total body water and exercise duration all cancel; only sweat composition and starting plasma sodium remain. This is the closed form of the parameter independence McCubbin reported numerically in his 2023 modelling paper~\cite{mccubbin2023}. Here $f$ is drink volume divided by sweat volume, and the derivation assumes no urine, no sodium or potassium intake, no metabolic water, no respiratory loss, and ingested fluid absorbed in full; the review's 70\% is expressed against total fluid loss, which includes respiratory and metabolic terms. Table~\ref{tab:fstar} shows the result across the normative range of whole-body sweat sodium~\cite{barnes2019}.
+
+\begin{table}[ht]
+\centering
+\caption{Fluid-replacement fraction at which plasma sodium is predicted to stop rising and begin falling, with no sodium intake ($\K_{\mathrm{sweat}}$ 3.5~\mmolL{}, pre-exercise plasma sodium 140~\mmolL{}).}
+\label{tab:fstar}
+\begin{tabular}{cc}
+\toprule
+Whole-body sweat $\Na$ (\mmolL) & Crossover replacement $\fstar$ \\
+\midrule
+30 & 79\% \\
+40 & 73\% \\
+50 & 66\% \\
+60 & 60\% \\
+70 & 54\% \\
+80 & 47\% \\
+90 & 41\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 70\% heuristic is a reasonable central value. For athletes above roughly 60~\mmolL{}, the top bin of the review's own Figure~3, $\fstar$ is 60\% or lower, a replacement fraction that is achievable in events of 2 to 4~h and is routinely exceeded when fluid is freely available.
+
+\subsection*{A worked counterexample under 4~h}
+
+Consider a 70~kg runner (total body water 42~L) with a whole-body sweat sodium of 80~\mmolL{}, near the top of the range reported by Barnes et al.~\cite{barnes2019} and chosen to bound the effect, running a hot marathon at 1.4~\Lh{} and drinking 1.0~\Lh{} (71\% replacement). Using the Kurtz--Nguyen equation as validated by Baker et al.~\cite{baker2008}:
+\begin{itemize}[nosep]
+  \item At 3.0~h: body mass deficit 1.7\%, plasma sodium 136.0~\mmolL{}
+  \item At 3.5~h: body mass deficit 2.0\%, plasma sodium 135.3~\mmolL{}
+  \item At 4.0~h: body mass deficit 2.3\%, plasma sodium 134.6~\mmolL{}
+\end{itemize}
+At 3.5~h this athlete is at a 2\% deficit and at the floor of the clinical reference range; at 4~h they are at 134.6~\mmolL{}, below it. They are under the 4~h gate throughout, and Figure~3 directs them to ``season to taste''. The gate is the only node that fails: run past it, the same athlete lands in the figure's ``$>$60~\mmolL{}, 70 to 90\% replacement'' cell, which prescribes 40 to 70\% of sodium losses, and Equation~2 gives 48\%. The sodium required to hold plasma sodium at 140~\mmolL{} in the 3~h case is ${\sim}160$~mmol (3.7~g), which at their fluid intake corresponds to ${\sim}53$~\mmolL{} or ${\sim}123$~mg per 100~mL. That exceeds the 100 to 120~mg per 100~mL palatability ceiling the review identifies, which is itself informative: in this athlete the dose has to come from capsules or food rather than the bottle.
+
+\subsection*{Duration matters for magnitude, not direction}
+
+We do not argue that duration is irrelevant. Being above $\fstar$ determines only that plasma sodium is falling; the size of the fall scales approximately with $(f - \fstar) \times$ cumulative sweat volume\,/\,total body water, and cumulative sweat volume is rate $\times$ duration. The 4~h gate is therefore a defensible approximation of ``long enough for the drift to become clinically meaningful'' at typical sweat sodium concentrations. Our point is that an approximation should not be the top of the decision tree when the underlying quantity can be computed from the same inputs the tree already requires. A tree that outputs the projected end-of-event plasma sodium, rather than a binary gate, handles both the central case and the edge cases without additional data.
+
+\subsection*{The high-sweat-rate case is already handled, and correctly}
+
+The review's worked example of a rugby player at 2.5~\Lh{} and 60~\mmolL{} illustrates that very high sweat rates do not create a sodium problem, because the athlete cannot replace enough fluid to cross $\fstar$. We agree, and our procedure reproduces the review's figures (144.5~\mmolL{} with no sodium; 148.3~\mmolL{} with full replacement, taking total body water as 0.60 of body mass). The athletes the current tree fails are not heavy sweaters. They are moderate sweaters with high sweat sodium who drink well, in events of 2.5 to 4~h.
+
+\subsection*{Proposed procedure}
+
+We propose that Figure~3 be replaced with a computation that takes five inputs (sweat rate, duration, body mass, maximum tolerable fluid intake rate, acceptable body mass deficit) and introduces sweat sodium only at the final step:
+\begin{enumerate}[nosep]
+  \item \textbf{Total fluid loss} $=$ sweat rate $\times$ duration (corrected for onset ramp where measured).
+  \item \textbf{Required replacement fraction} $=$ (total loss $-$ acceptable deficit)\,/\,total loss, where acceptable deficit $=$ target \% $\times$ body mass. This is the review's Equation~3.
+  \item \textbf{Achievable replacement fraction} $=$ (maximum tolerable intake $\times$ duration)\,/\,total loss, capped at 1. Gastric emptying and intestinal absorption during exercise constrain this to roughly 1.0 to 1.5~\Lh{} in most individuals~\cite{leiper2015}, and it is trainable~\cite{jeukendrup2017}.
+  \item \textbf{Operating point} $=$ the lesser of steps 2 and 3. Output the projected body mass deficit at the operating point. If achievable $<$ required, the athlete is fluid-limited; hydration is the binding constraint and plasma sodium will rise regardless of sodium intake.
+  \item \textbf{Compare the operating point to $\fstar$} for the athlete's sweat composition. Below $\fstar$: sodium intake can be set by palatability. Above $\fstar$: use Equation~2 of the review to compute the sodium dose that holds plasma sodium stable at the operating point, and output the projected end-of-event plasma sodium with and without that dose.
+\end{enumerate}
+Steps 1 to 4 require no sweat composition data. Step 5 is the first point at which testing becomes informative, which preserves the review's conclusion that testing is unnecessary for most athletes while making explicit, and computable, the criterion for when it is not.
+
+\subsection*{Limitations}
+
+This is a modelling argument, as is the review's. No outcome data exist at the operating points described, and the review correctly notes uncertainty about whether purposeful sodium replacement in the 70 to 100\% window spares plasma volume or osmotically inactive sodium stores. The maximum tolerable intake rate is an individual parameter with limited normative data and should be measured rather than assumed. The acceptable body mass deficit is contested~\cite{james2019} and should be treated as a user input rather than a constant. Our claim is for better decision logic, not for better evidence.
+
+\section*{List of abbreviations}
+
+$\fstar$: crossover fluid-replacement fraction; $\Na_{\mathrm{sweat}}$: whole-body sweat sodium concentration; $\K_{\mathrm{sweat}}$: whole-body sweat potassium concentration; $\Na_{\mathrm{plasma}}$: plasma sodium concentration; TBW: total body water.
+
+\section*{Declarations}
+
+\textbf{Ethics approval and consent to participate:} Not applicable.
+
+\textbf{Consent for publication:} Not applicable.
+
+\textbf{Availability of data and materials:} All calculations are reproducible from the equations given in the text. An interactive implementation of the proposed procedure is available at [URL to be added].
+
+\textbf{Competing interests:} The author declares no competing interests.
+
+\textbf{Funding:} No funding was received for the preparation of this manuscript.
+
+\textbf{Authors' contributions:} AJR conceived the argument, performed the calculations, and wrote the manuscript.
+
+\textbf{Acknowledgements:} A large language model (Claude, Anthropic) was used to assist with drafting. All derivations and calculations were performed and checked independently by the author, who takes full responsibility for the content.
+
+\begin{thebibliography}{99}
+\bibitem{mccubbin2025} McCubbin AJ. Sodium intake for athletes before, during and after exercise: review and recommendations. Performance Nutrition. 2025;1:11. \href{https://doi.org/10.1186/s44410-025-00011-9}{doi:10.1186/s44410-025-00011-9}.
+\bibitem{kurtz2003} Kurtz I, Nguyen MK. A simple quantitative approach to analyzing the generation of the dysnatremias. Clin Exp Nephrol. 2003;7(2):138--43.
+\bibitem{barnes2019} Barnes KA, Anderson ML, Stofan JR, Dalrymple KJ, Reimel AJ, Roberts TJ, et al. Normative data for sweating rate, sweat sodium concentration, and sweat sodium loss in athletes: an update and analysis by sport. J Sports Sci. 2019;37(20):2356--66.
+\bibitem{baker2008} Baker LB, Lang JA, Kenney WL. Quantitative analysis of serum sodium concentration after prolonged running in the heat. J Appl Physiol. 2008;105(1):91--9.
+\bibitem{leiper2015} Leiper JB. Fate of ingested fluids: factors affecting gastric emptying and intestinal absorption of beverages in humans. Nutr Rev. 2015;73(Suppl 2):57--72.
+\bibitem{jeukendrup2017} Jeukendrup AE. Training the gut for athletes. Sports Med. 2017;47(Suppl 1):101--10.
+\bibitem{mccubbin2023} McCubbin AJ. Modelling sodium requirements of athletes across a variety of exercise scenarios: identifying when to test and target, or season to taste. Eur J Sport Sci. 2023;23(6):992--1000.
+\bibitem{james2019} James LJ, Funnell MP, James RM, Mears SA. Does hypohydration really impair endurance performance? Methodological considerations for interpreting hydration research. Sports Med. 2019;49(Suppl 2):103--14.
+\end{thebibliography}
+
+\end{document}

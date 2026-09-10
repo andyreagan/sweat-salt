@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="One body of water, sweat leaving, bottles emptying, and the colour of your blood following the equation. Scroll, then run your own.">
+<meta name="color-scheme" content="light dark">
+<title>Sweat Out, Water In</title>
+<style>
+body{margin:0;line-height:1.6;font-size:18px;color:#444;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fff}
+h1,h2,h3{line-height:1.2}
+a{color:#07a}
+small{font-size:.8em;color:#777}
+.intro,.outro{max-width:650px;margin:40px auto;padding:0 10px}
+.intro h1{font-size:2.2em;margin:.2em 0}
+.intro p:first-of-type{color:#777}
+.scrolly{display:flex;max-width:1100px;margin:0 auto;padding:0 10px;gap:40px}
+.steps{flex:0 0 340px}
+.step{min-height:90vh;display:flex;align-items:center;opacity:.35;transition:opacity .3s}
+.step.active{opacity:1}
+.step p{margin:0 0 .6em}
+.step .k{font-weight:700}
+.graphic{flex:1;position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.graphic svg{width:100%;height:auto;max-height:86vh;overflow:visible}
+@media (max-width:760px){
+  .scrolly{flex-direction:column;gap:0}
+  .graphic{height:48vh;top:0;background:#fff;z-index:1;align-items:flex-start;padding-top:6px}
+  .graphic svg{max-height:46vh}
+  .steps{flex:1}
+  .step{min-height:60vh;align-items:flex-start}
+  .step>div{background:#fff;padding:.4em .6em;border-left:3px solid #ddd}
+}
+/* the playground at the end */
+.play{max-width:1100px;margin:40px auto;padding:0 10px}
+.play h2{font-size:1.4em;margin:0 0 .3em}
+.play form{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:end;margin:.6em 0 1em;font-size:.9em}
+.play label{display:flex;flex-direction:column;color:#777;font-size:.8em}
+.play input{font:inherit;font-size:1.15em;width:6.5em;color:#444;background:#fff;border:1px solid #bbb;border-radius:3px;padding:.15em .4em}
+.play button{font:inherit;font-size:1em;padding:.3em 1.2em;cursor:pointer;color:#fff;background:#444;border:0;border-radius:2em}
+.play button:disabled{opacity:.5;cursor:default}
+.play svg{width:100%;height:auto;overflow:visible}
+/* the drawing */
+.figure{fill:none;stroke:#999;stroke-width:2}
+.readout{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
+.readout-unit,.label,.axis text,.legend text{fill:#777}
+.readout-unit,.label{font-size:13px}
+.axis text,.legend text{font-size:11px}
+.label.strong{fill:#444;font-weight:600}
+.label.recover{fill:#07a}
+.trace{fill:none;stroke:#444;stroke-width:2}
+.band{fill:#2a78d6;fill-opacity:.1}
+.axis line,.axis path{stroke:#ccc}
+.bottle-body{stroke:#999;stroke-width:1.2;fill:#fff}
+@media (prefers-color-scheme:dark){
+  body,.graphic,.step>div{background:#161616;color:#ccc}
+  .step>div{border-color:#333}
+  .figure{stroke:#666}
+  .label.strong{fill:#ccc}.trace{stroke:#ccc}
+  .axis line,.axis path{stroke:#444}
+  .bottle-body{fill:#161616;stroke:#666}
+  .play input{background:#222;color:#ccc;border-color:#555}
+  .play button{background:#ddd;color:#111}
+  a{color:#5bc}
+}
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>Sweat out, water in</h1>
+  <p>What happens to the salt in your blood when you sweat, drink, and take salt. Scroll.</p>
+  <p>The figure is your body water. Its colour is how much sodium is dissolved in it: blue is dilute, red is concentrated, and grey-green is the normal range for blood, 135 to 145 mmol/L. Drops leaving are sweat, coloured by how salty it is. Bottles are what you drink. Every frame comes from a standard mass-balance equation; the sources are at the bottom.</p>
+</div>
+
+<div class="scrolly">
+  <div class="steps">
+    <div class="step" data-step="0"><div>
+      <p><span class="k">This is you, as water.</span></p>
+      <p>About 60% of your weight is water, and dissolved in it is sodium at about 140 mmol/L. Your body holds that number in a narrow band. Much lower and you get sick and confused; much higher and you get thirsty and hot.</p>
+      <p>Sweat is far more dilute than blood. Average sweat is about 45; very salty sweat, the kind that leaves white crust on dark kit, is about 90. A sports drink is about 20, an electrolyte mix about 65. The scale at the bottom shows each.</p>
+    </div></div>
+    <div class="step" data-step="1"><div>
+      <p><span class="k">Sweat for three hours. Drink nothing.</span></p>
+      <p>Sweat is mostly water with a little salt, and it is always less salty than blood. So every drop that leaves takes away more water than sodium, and the blood left behind gets <b>saltier</b>. The number goes up. Three hours of this with nothing to drink and you are above the normal range.</p>
+      <p>The body's answer to this is thirst.</p>
+    </div></div>
+    <div class="step" data-step="2"><div>
+      <p><span class="k">Drink half of it back.</span></p>
+      <p>Plain water coming in dilutes what's left. Four bottles over the three hours, emptying one after another, make the rise slower. They don't stop it. The blood still ends up saltier than it started.</p>
+    </div></div>
+    <div class="step" data-step="3"><div>
+      <p><span class="k">Drink 70%. The colour holds.</span></p>
+      <p>There is a drinking rate at which the dilution from the bottle exactly matches the concentration from sweating, and the blood stays where it started. For average sweat it's about 70% of what you sweat. Call it the crossover.</p>
+      <p>Drink less than that and your blood gets saltier no matter what else you do. Drink more and it gets more dilute.</p>
+    </div></div>
+    <div class="step" data-step="4"><div>
+      <p><span class="k">Drink 90%. Now it turns blue.</span></p>
+      <p>Past the crossover, plain water dilutes the blood and the number goes down. This is the only situation in which salt in the drink changes blood chemistry. Most people never reach it, because drinking 90% of what you sweat is hard to do.</p>
+    </div></div>
+    <div class="step" data-step="5"><div>
+      <p><span class="k">Sweep the drinking rate.</span></p>
+      <p>Same three hours, same sweat, drinking from nothing up to everything. Red on the left, blue on the right, grey-green at 70%.</p>
+      <p>Body size doesn't move that point. Nor does how long you go, or how much you sweat. Only how salty the sweat is.</p>
+    </div></div>
+    <div class="step" data-step="6"><div>
+      <p><span class="k">A rugby player.</span></p>
+      <p>Big body, heavy sweat, and a game that allows one bottle in 80 minutes. He puts back 15% of what he loses. His blood gets saltier, up to the top of the normal range, with no salt taken at all.</p>
+    </div></div>
+    <div class="step" data-step="7"><div>
+      <p><span class="k">Now he takes salt to "replace what he lost".</span></p>
+      <p>All of it, in the one bottle he's allowed. That makes a drink close to seawater. His blood goes up further, past the top of the normal range.</p>
+      <p>Salt made this worse. His problem was never salt. It was three litres of water he couldn't drink.</p>
+    </div></div>
+    <div class="step" data-step="8"><div>
+      <p><span class="k">A salty marathoner.</span></p>
+      <p>Some people's sweat is nearly twice as salty as average. Their crossover is lower, under 50%. Running a hot marathon and drinking a litre an hour, about 70% of their sweat, plain water dilutes them. Their blood goes <b>down</b>, and drops out of the bottom of the normal range before four hours.</p>
+      <p>A common rule of thumb says salt only matters in events longer than four hours. For this runner, the rule is wrong.</p>
+    </div></div>
+    <div class="step" data-step="9"><div>
+      <p><span class="k">About 1.2 grams an hour holds them flat.</span></p>
+      <p>That's nearly three times the sodium of a sports drink, in every bottle. The bottles are visibly saltier, and the blood holds steady in the normal range the whole way. This is the one case in the story where salt is doing real work.</p>
+    </div></div>
+    <div class="step" data-step="10"><div>
+      <p><span class="k">A heavy sweater.</span></p>
+      <p>Some people lose two and a half litres an hour in the heat. Drinking a litre an hour puts back less than half of it. The level drops fast and the blood gets saltier, past the top of the normal range. Well under the crossover, so thirst is the signal, not salt.</p>
+    </div></div>
+    <div class="step" data-step="11"><div>
+      <p><span class="k">Replace all that sodium, and it goes higher still.</span></p>
+      <p>Salt cannot put water back. What helps here is pace, cooling, a gut trained to take more, and drinking before the start.</p>
+    </div></div>
+    <div class="step" data-step="12"><div>
+      <p><span class="k">Same drinking, different sweat.</span></p>
+      <p>Three hours, 70% replaced, plain water, and sweat getting saltier from left to right. People with low-sodium sweat end up saltier than they started. People with salty sweat end up more dilute.</p>
+      <p>The crossover is a property of your sweat, and that is the one thing a sweat test can tell you.</p>
+    </div></div>
+  </div>
+  <div class="graphic"><svg id="viz"></svg></div>
+</div>
+
+<div class="play" id="play">
+  <h2>Now you</h2>
+  <p>Set the event and press go. The figure runs it in about eight seconds, holds so you can read it, then recovers.</p>
+  <form id="form" onsubmit="return false">
+    <label>hours <input name="dur" type="number" step="0.25" min="0.25" value="3"></label>
+    <label>sweat, L/h <input name="rate" type="number" step="0.05" min="0" value="1.4"></label>
+    <label>body mass, kg <input name="mass" type="number" step="1" min="35" value="75"></label>
+    <label>drinking, L/h <input name="intake" type="number" step="0.05" min="0" value="0.9"></label>
+    <label>sweat sodium, mmol/L <input name="sweatNa" type="number" step="1" min="10" value="45"></label>
+    <label>sodium in the drink, mg/h <input name="salt" type="number" step="50" min="0" value="0"></label>
+    <button id="go" type="button">Go</button>
+  </form>
+  <svg id="viz2"></svg>
+</div>
+
+<div class="outro">
+  <p><a href="./">The calculator</a> gives the same answer as words and doses. <a href="scrollytelling.html">The chart version</a> of this walkthrough shows the scenarios as lines.</p>
+  <p><small>Kurtz I, Nguyen MK. Clin Exp Nephrol 2003;7:138–43. McCubbin AJ. Performance Nutrition 2025;1:11. Assumes 60% body water, 140 mmol/L to start, 3.5 mmol/L sweat potassium, no urine. The fluid level is exaggerated four times so a 5% loss is visible; bottles are 500 mL. Modelling, not medical advice.</small></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/3.2.0/scrollama.min.js"></script>
+<script>
+// ---------- the model (same as the calculator) ----------
+const NA_MG = 22.99, TBW_PCT = 0.60, NA0 = 140, K_SWEAT = 3.5, BOTTLE_L = 0.5;
+function plasmaNa(S, I, naIn, sweatNa, tbw0) {
+  const tbw = tbw0 - S + I, dE = naIn - (sweatNa + K_SWEAT) * S;
+  return ((NA0 + 23.8) * tbw0 + 1.03 * dE) / tbw - 23.8;
+}
+function doseFor(target, S, I, sweatNa, tbw0) {
+  const tbw = tbw0 - S + I;
+  return Math.max(0, ((target + 23.8) * tbw - (NA0 + 23.8) * tbw0) / 1.03 + (sweatNa + K_SWEAT) * S);
+}
+// the body at hour h of scenario p, taking saltMgH of sodium per hour
+function at(p, h, saltMgH) {
+  const tbw0 = p.mass * TBW_PCT, S = p.rate * h, I = p.intake * h;
+  return { h, S, I, tbw: tbw0 - S + I, tbw0, na: plasmaNa(S, I, (saltMgH * h) / NA_MG, p.sweatNa, tbw0), p, salt: saltMgH,
+           drinkNa: p.intake > 0 ? saltMgH / p.intake / NA_MG : 0 };   // mg/h ÷ L/h ÷ mg/mmol = mmol/L in the drink
+}
+
+// ---------- scenarios ----------
+const avg = { mass: 75, rate: 1.4, sweatNa: 45, dur: 3 };
+const rugby = { mass: 95, rate: 2.5, sweatNa: 60, dur: 80 / 60, intake: 0.375 };
+const marathoner = { mass: 70, rate: 1.4, sweatNa: 80, dur: 4, intake: 1.0 };
+const chamber = { mass: 87, rate: 2.41, sweatNa: 53.7, dur: 3, intake: 1.0 };
+const fullDose = (p) => p.sweatNa * p.rate * NA_MG;
+const holdDose = (p, dur) => (doseFor(NA0, p.rate * dur, p.intake * dur, p.sweatNa, p.mass * TBW_PCT) * NA_MG) / dur;
+
+// drive: "time" runs the clock; "intake" sweeps drinking 0→100% at the end of the event; "sweatNa" sweeps sweat sodium 20→90
+const SCENES = [
+  { p: { ...avg, intake: 0, rate: 0 }, salt: 0, drive: "time", title: "At rest" },
+  { p: { ...avg, intake: 0 }, salt: 0, drive: "time", title: "Average sweat, 1.4 L/h, drinking nothing" },
+  { p: { ...avg, intake: 0.7 }, salt: 0, drive: "time", title: "Drinking 50% back, plain water" },
+  { p: { ...avg, intake: 0.98 }, salt: 0, drive: "time", title: "Drinking 70% back: the crossover" },
+  { p: { ...avg, intake: 1.26 }, salt: 0, drive: "time", title: "Drinking 90% back, plain water" },
+  { p: { ...avg, intake: 0 }, salt: 0, drive: "intake", title: "Three hours in, sweeping how much you drank" },
+  { p: rugby, salt: 0, drive: "time", title: "Rugby: 2.5 L/h, one bottle, no salt" },
+  { p: rugby, salt: fullDose(rugby), drive: "time", title: "Rugby: replacing 100% of sweat sodium" },
+  { p: marathoner, salt: 0, drive: "time", title: "Marathoner: 80 mmol/L sweat, 71% replaced, no salt" },
+  { p: marathoner, salt: holdDose(marathoner, 3.5), drive: "time", title: "Marathoner with 1.2 g/h of sodium" },
+  { p: chamber, salt: 0, drive: "time", title: "Heavy sweater: 2.4 L/h, drinking 1 L/h, no salt" },
+  { p: chamber, salt: fullDose(chamber), drive: "time", title: "Heavy sweater: replacing 100% of sweat sodium" },
+  { p: { ...avg, intake: 0.98 }, salt: 0, drive: "sweatNa", title: "Three hours, 70% replaced, sweeping sweat sodium" },
+];
+// Each step has three phases as you scroll through it: the event runs, then holds at the end so you can
+// look at it, then the body recovers (drinks back, salt from food) so the next scene starts at rest.
+const RUN_END = 0.6, HOLD_END = 0.85;
+function phaseOf(prog) { return prog < RUN_END ? "run" : prog < HOLD_END ? "hold" : "recover"; }
+function stateFor(sc, prog) {
+  const p = { ...sc.p };
+  const phase = phaseOf(prog), f = phase === "run" ? prog / RUN_END : 1;
+  let h = p.dur;
+  if (sc.drive === "time") h = p.dur * f;
+  if (sc.drive === "intake") p.intake = p.rate * f;
+  if (sc.drive === "sweatNa") p.sweatNa = 20 + 70 * f;
+  const st = at(p, h, sc.salt);
+  st.phase = phase; st.f = f;
+  return st;
+}
+
+// ---------- the drawing: a figure of water, bottles, a readout, a trace ----------
+const still = location.hash.includes("nojump");
+// deep blue for a sports drink, lighter blue up through salty sweat, grey-green across the normal blood range, red above it
+const colour = d3.scaleLinear().domain([15, 90, 134, 140, 146, 158]).range(["#1b4fa0", "#5e9be0", "#a9c8dc", "#b9c9c2", "#d9a394", "#d33a2c"]).interpolate(d3.interpolateRgb).clamp(true);
+const LEVEL_X = 4;   // the fluid level is exaggerated this many times
+
+// a standing figure in a 100 × 260 box, drawn once as a path
+const FIGURE = "M50,4 a17,17 0 1,0 0.01,0 Z M34,46 L66,46 Q82,50 84,66 L92,128 L82,131 L76,92 L76,152 L71,254 L56,254 L52,166 L48,166 L44,254 L29,254 L24,152 L24,92 L18,131 L8,128 L16,66 Q18,50 34,46 Z";
+
+function makeViz(svgEl) {
+  const svg = d3.select(svgEl);
+  let W = 640, H = 520;
+  const fig = { x: 0, y: 0, s: 1 };
+  const V = { drops: [], shown: { na: NA0, frac: 1 }, target: null, recovering: false, last: 0 };
+  const clipId = "clip-" + svgEl.id;
+  svg.append("clipPath").attr("id", clipId).append("path").attr("d", FIGURE);
+  const gBottles = svg.append("g"), gFig = svg.append("g"), gDrops = svg.append("g"), gText = svg.append("g"), gTrace = svg.append("g"), gLegend = svg.append("g");
+  const fluid = gFig.append("rect").attr("clip-path", `url(#${clipId})`);
+  gFig.append("path").attr("class", "figure").attr("d", FIGURE);
+  const title = gText.append("text").attr("class", "label strong");
+  const readout = gText.append("text").attr("class", "readout");
+  const readUnit = gText.append("text").attr("class", "readout-unit").text("plasma sodium, mmol/L");
+  const stats = gText.append("text").attr("class", "label");
+  const note = gText.append("text").attr("class", "label recover");
+  const traceLine = gTrace.append("path").attr("class", "trace");
+  const trace = {};
+
+  function layout() {
+    const box = svgEl.parentElement.getBoundingClientRect();
+    W = Math.max(320, Math.min(box.width, 760));
+    H = Math.round(Math.min(W * 0.85, window.innerHeight * 0.86, 600));
+    svg.attr("viewBox", `0 0 ${W} ${H}`).attr("width", W).attr("height", H);
+    fig.s = (H * 0.58) / 260; fig.x = W * 0.08; fig.y = H * 0.20;
+    gFig.attr("transform", `translate(${fig.x},${fig.y}) scale(${fig.s})`);
+    title.attr("x", 10).attr("y", 22);
+    const rx = fig.x + 100 * fig.s + 40;
+    readout.attr("x", rx).attr("y", fig.y + 46);
+    readUnit.attr("x", rx).attr("y", fig.y + 66);
+    stats.attr("x", rx).attr("y", fig.y + 94);
+    note.attr("x", rx).attr("y", fig.y + 114);
+    trace.x = rx; trace.y = fig.y + 140; trace.w = W - rx - 16; trace.h = 260 * fig.s - 140;
+    trace.yS = d3.scaleLinear().domain([130, 156]).range([trace.y + trace.h, trace.y]);
+    gTrace.selectAll(":not(path)").remove();
+    gTrace.insert("rect", "path").attr("class", "band").attr("x", trace.x).attr("y", trace.yS(145)).attr("width", trace.w).attr("height", trace.yS(135) - trace.yS(145));
+    gTrace.insert("g", "path").attr("class", "axis").attr("transform", `translate(${trace.x},0)`).call(d3.axisLeft(trace.yS).ticks(4).tickSize(-trace.w)).call((a) => a.select(".domain").remove());
+    gTrace.append("text").attr("class", "label").attr("x", trace.x).attr("y", trace.y - 6).text("so far");
+    legend();
+  }
+  function legend() {
+    gLegend.selectAll("*").remove();
+    const y = H - 22, x = d3.scaleLinear().domain([0, 160]).range([10, W - 10]);
+    const grad = gLegend.append("defs").append("linearGradient").attr("id", "leg-" + svgEl.id);
+    d3.range(0, 161, 8).forEach((v) => grad.append("stop").attr("offset", `${(v / 160) * 100}%`).attr("stop-color", colour(v)));
+    gLegend.append("rect").attr("x", 10).attr("y", y).attr("width", W - 20).attr("height", 8).attr("rx", 4).attr("fill", `url(#leg-${svgEl.id})`);
+    const g = gLegend.append("g").attr("class", "legend");
+    for (const [v, t] of [[20, "sports drink"], [45, "average sweat"], [65, "electrolyte mix"], [90, "very salty sweat"], [140, "blood"]]) {
+      g.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", y - 4).attr("y2", y + 12).attr("stroke", "#999");
+      g.append("text").attr("x", x(v)).attr("y", y - 7).attr("text-anchor", "middle").text(`${t} ${v}`);
+    }
+  }
+
+  // bottles: one per 500 mL planned, emptying in order as the clock runs
+  function bottles(s) {
+    const total = s.p.intake * s.p.dur, n = Math.min(14, Math.ceil(total / BOTTLE_L - 1e-9));
+    const drunk = s.I;
+    const data = d3.range(n).map((i) => ({ i, fill: Math.max(0, Math.min(1, (Math.min(total, (i + 1) * BOTTLE_L) - drunk) / BOTTLE_L)) }));
+    const bw = 16, bh = 34, gap = 6, x0 = fig.x, y0 = fig.y - bh - 18;
+    const b = gBottles.selectAll("g.b").data(data, (d) => d.i).join((enter) => {
+      const g = enter.append("g").attr("class", "b");
+      g.append("rect").attr("class", "bottle-body").attr("width", bw).attr("height", bh).attr("rx", 4);
+      g.append("rect").attr("class", "cap").attr("x", 5).attr("y", -6).attr("width", 6).attr("height", 7).attr("rx", 1).attr("fill", "#999");
+      g.append("rect").attr("class", "juice").attr("x", 2).attr("rx", 2).attr("width", bw - 4);
+      return g;
+    });
+    b.attr("transform", (d) => `translate(${x0 + d.i * (bw + gap)},${y0})`);
+    b.select(".juice").attr("y", (d) => 2 + (bh - 4) * (1 - d.fill)).attr("height", (d) => (bh - 4) * d.fill).attr("fill", colour(s.drinkNa));
+    gBottles.select("text").remove();
+    if (n > 0) gBottles.append("text").attr("class", "label").attr("x", x0).attr("y", y0 - 12).text(`${total.toFixed(1)} L planned, ${Math.min(total, drunk).toFixed(1)} L drunk`);
+  }
+
+  // the trace of plasma sodium through the scene so far
+  function tracePath(sc, upTo, s) {
+    const pts = [];
+    for (let i = 0; i <= 60; i++) {
+      const f = i / 60; if (f > upTo + 1e-9) break;
+      let v;
+      if (sc.drive === "time") v = at(s.p, s.p.dur * f, s.salt).na;
+      else if (sc.drive === "intake") v = at({ ...s.p, intake: s.p.rate * f }, s.p.dur, s.salt).na;
+      else v = at({ ...s.p, sweatNa: 20 + 70 * f }, s.p.dur, s.salt).na;
+      pts.push([f, v]);
+    }
+    const x = d3.scaleLinear().domain([0, 1]).range([trace.x, trace.x + trace.w]);
+    traceLine.attr("d", d3.line().x((d) => x(d[0])).y((d) => trace.yS(d[1]))(pts));
+  }
+
+  // set what the figure should be showing; the frame loop glides toward it.
+  // Drops are metered here, by how much was sweated or drunk since the last call, so they follow the scroll.
+  const DROP_L = 0.04;   // litres per drop
+  function setTarget(sc, prog, snap) {
+    const s = stateFor(sc, prog);
+    if (V.target && V.target.sc === sc && !still && !snap && s.phase === "run") {
+      const dS = s.S - V.target.s.S, dI = s.I - V.target.s.I;
+      if (dS > 0) emit("sweat", dS / DROP_L, colour(s.p.sweatNa));
+      if (dI > 0) emit("drink", dI / DROP_L, colour(s.drinkNa));
+    }
+    const recovering = s.phase === "recover";
+    V.target = { na: recovering ? NA0 : s.na, frac: recovering ? 1 : Math.max(0.12, 1 - LEVEL_X * (1 - s.tbw / s.tbw0)), s, sc, prog };
+    if (snap || still) V.shown = { na: V.target.na, frac: V.target.frac };
+    title.text(sc.title + (s.phase === "hold" ? "  ·  finished" : recovering ? "  ·  recovering" : ""));
+    bottles(s);
+    tracePath(sc, s.f, s);
+    const down = ((s.S - s.I) / s.p.mass) * 100;
+    const parts = [`${s.h.toFixed(1)} h`, `${s.S.toFixed(1)} L out`, `${s.I.toFixed(1)} L in`, `${down.toFixed(1)}% down`];
+    if (s.salt > 0) parts.push(`${Math.round(s.salt)} mg/h salt`);
+    if (sc.drive === "sweatNa") parts.push(`sweat ${Math.round(s.p.sweatNa)} mmol/L`);
+    stats.text(parts.join("  ·  "));
+    if (still) paint();
+  }
+
+  function paint() {
+    const fh = 260 * V.shown.frac;
+    fluid.attr("x", 0).attr("y", 260 - fh).attr("width", 100).attr("height", fh).attr("fill", colour(V.shown.na));
+    readout.text(V.shown.na.toFixed(1)).attr("fill", d3.color(colour(V.shown.na)).darker(0.6));
+  }
+
+  // one animation frame: glide the shown state toward the target, move the drops
+  function frame(now) {
+    const dt = Math.min(0.05, (now - V.last) / 1000 || 0); V.last = now;
+    if (!V.target) return;
+    const k = 1 - Math.exp(-dt / 0.35);
+    const gapNa = V.target.na - V.shown.na, gapFrac = V.target.frac - V.shown.frac;
+    V.shown.na += gapNa * k; V.shown.frac += gapFrac * k;
+    V.recovering = Math.abs(gapNa) > 0.4 || Math.abs(gapFrac) > 0.02;
+    note.text(V.target.s.phase === "recover" ? "drinking back what was lost, salt from the next meal" : "");
+    paint();
+    if (!still && V.recovering && gapFrac > 0.01) emit("drink", 8 * dt, colour(20));   // refilling between scenes
+    for (const d of V.drops) {
+      d.x += d.vx * dt; d.y += d.vy * dt;
+      if (d.kind === "sweat") { d.vy += 120 * dt; d.life -= dt; }
+      else if (d.y >= surfaceY()) d.life = 0; else d.vy += 220 * dt;
+    }
+    V.drops = V.drops.filter((d) => d.life > 0);
+    gDrops.selectAll("circle").data(V.drops).join("circle")
+      .attr("cx", (d) => d.x).attr("cy", (d) => d.y).attr("r", (d) => d.r).attr("fill", (d) => d.c)
+      .attr("opacity", (d) => (d.kind === "sweat" ? Math.min(1, d.life / 0.6) : 1));
+  }
+  const surfaceY = () => fig.y + (260 - 260 * V.shown.frac) * fig.s;
+  function emit(kind, n, c) {
+    n = Math.min(n, 40);
+    for (; n > 0; n -= 1) if (Math.random() < Math.min(1, n)) {
+      if (kind === "sweat") {
+        const t = 46 + Math.random() * 200, edge = t < 130 ? 84 + (t - 46) * 0.1 : 76;   // roughly the figure's right edge
+        V.drops.push({ kind, x: fig.x + edge * fig.s + Math.random() * 12, y: fig.y + t * fig.s, vx: 40 + Math.random() * 50, vy: -20 + Math.random() * 30, life: 1.4 + Math.random() * 0.6, r: 3 + Math.random() * 2, c });
+      } else {
+        V.drops.push({ kind, x: fig.x + (50 + (Math.random() - 0.5) * 10) * fig.s, y: fig.y - 6 - Math.random() * 30, vx: 0, vy: 60, life: 2, r: 3.2, c });
+      }
+    }
+  }
+  return { layout, setTarget, frame };
+}
+
+// ---------- the sticky one, driven by scroll ----------
+const viz = makeViz(document.getElementById("viz"));
+let current = 0, progress = 1;
+const scroller = scrollama();
+if (!still) scroller.setup({ step: ".step", offset: 0.55, progress: true })
+  .onStepEnter((r) => {
+    document.querySelectorAll(".step").forEach((el) => el.classList.toggle("active", el === r.element));
+    current = +r.element.dataset.step; progress = r.direction === "up" ? 1 : 0;
+    viz.setTarget(SCENES[current], progress);
+  })
+  .onStepProgress((r) => { if (+r.element.dataset.step !== current) return; progress = r.progress; viz.setTarget(SCENES[current], progress); });
+
+// ---------- the full-width one, driven by the form ----------
+const viz2 = makeViz(document.getElementById("viz2"));
+const form = document.getElementById("form"), go = document.getElementById("go");
+function formScene() {
+  const f = Object.fromEntries(new FormData(form).entries());
+  const p = { mass: +f.mass, rate: +f.rate, sweatNa: +f.sweatNa, dur: +f.dur, intake: +f.intake };
+  return { p, salt: +f.salt, drive: "time", title: `${p.dur} h at ${p.rate} L/h, drinking ${p.intake} L/h${+f.salt ? ` with ${f.salt} mg/h sodium` : ""}` };
+}
+go.addEventListener("click", () => {
+  const sc = formScene(), start = performance.now(), ms = 8000 / RUN_END;   // 8 s of event, then the hold and recovery phases
+  go.disabled = true;
+  const run = (now) => {
+    const prog = Math.min(1, (now - start) / ms);
+    viz2.setTarget(sc, prog);
+    if (prog < 1) requestAnimationFrame(run); else { go.disabled = false; viz2.setTarget(sc, 0); }
+  };
+  requestAnimationFrame(run);
+});
+form.addEventListener("input", () => { if (!go.disabled) viz2.setTarget(formScene(), 0, true); });
+
+// ---------- start ----------
+window.addEventListener("resize", () => { scroller.resize(); viz.layout(); viz2.layout(); viz.setTarget(SCENES[current], progress, true); viz2.setTarget(formScene(), 0, true); });
+const first = +(new URLSearchParams(location.hash.slice(1)).get("scene") || 0);
+current = Number.isFinite(first) ? first : 0;
+viz.layout(); viz2.layout();
+viz.setTarget(SCENES[current], still ? 0.7 : 1, true);   // in check mode, show the finished event (the hold phase)
+viz2.setTarget(formScene(), 0, true);
+if (still) document.querySelector(`.step[data-step="${current}"]`)?.classList.add("active");
+else if (first > 0) document.querySelector(`.step[data-step="${first}"]`)?.scrollIntoView({ block: "center" });
+(function loop(now) { viz.frame(now); viz2.frame(now); requestAnimationFrame(loop); })(performance.now());
+</script>
+</body>
+</html>

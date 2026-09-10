@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Does the salt in your bottle matter? Duration, sweat rate and how much you'll drink, then an answer. Kurtz–Nguyen model.">
+<meta name="color-scheme" content="light dark">
+<title>Do I need salt?</title>
+<style>
+/* base: bettermotherfuckingwebsite.com, plus dark mode */
+body{margin:40px auto;max-width:650px;line-height:1.6;font-size:18px;color:#444;padding:0 10px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fff}
+h1,h2,h3{line-height:1.2}
+h1{font-size:2em;margin:0 0 .2em}
+h2{font-size:.8em;text-transform:uppercase;letter-spacing:.08em;color:#888;margin:2em 0 .5em}
+a{color:#07a}
+p{margin:.6em 0}
+small,.hint{font-size:.8em;color:#777}
+.hint{display:block;margin:.2em 0 .8em}
+hr{border:0;border-top:1px solid #ddd;margin:1.6em 0}
+header p{color:#777;margin-top:0}
+
+/* editable numbers: drag sideways, arrows, or double-click to type */
+.n{font-variant-numeric:tabular-nums;color:#07a;border-bottom:2px solid #07a;cursor:ew-resize;user-select:none;white-space:nowrap;touch-action:none;padding:0 .1em}
+.n:focus-visible,button:focus-visible{outline:2px solid #07a;outline-offset:2px}
+.n.drag{background:#07a;color:#fff}
+.n input{font:inherit;width:5ch;color:inherit;background:none;border:0;outline:0}
+.fx{font-variant-numeric:tabular-nums;font-weight:600}
+
+/* buttons */
+button{font:inherit;font-size:.85em;color:#444;background:none;border:1px solid #bbb;border-radius:2em;padding:.1em .8em;cursor:pointer;margin:0 .2em .3em 0}
+button[aria-pressed=true]{background:#444;color:#fff;border-color:#444}
+button.link{border:0;padding:0;color:#07a;text-decoration:underline;font-size:inherit}
+table{border-collapse:collapse;font-size:.85em;margin:.4em 0 .8em}
+td,th{padding:.1em .4em;text-align:center;font-weight:normal;color:#777}
+td button{margin:0;border-radius:3px;padding:.1em .6em}
+details summary{cursor:pointer;color:#07a;font-size:.85em}
+
+/* verdicts */
+.v{margin:1em 0;padding:.6em 1em;border-left:4px solid #999;background:#f6f6f6}
+.v.ok{border-color:#2a2}
+.v.note{border-color:#e90}
+.v.warn{border-color:#d33}
+.v b.h{display:block;font-size:1.1em;margin-bottom:.2em}
+.v p{font-size:.92em}
+
+/* doses and outcome */
+dl{display:grid;grid-template-columns:max-content 1fr;gap:.2em 1em;align-items:baseline;margin:.6em 0}
+dt{font-size:.75em;text-transform:uppercase;letter-spacing:.08em;color:#777}
+dd{margin:0;font-variant-numeric:tabular-nums;font-size:1.15em}
+dd.big{font-size:1.5em;font-weight:600}
+dd small{margin-left:.5em;font-size:.65em}
+dd button{font-size:.6em;vertical-align:middle}
+.out{display:flex;gap:2em;margin:1.4em 0 .4em}
+.out b{display:block;font-size:1.7em;font-variant-numeric:tabular-nums;line-height:1.1}
+.out .warn b{color:#d33}
+.out .ok b{color:#2a2}
+.out small{display:block}
+footer{font-size:.75em;color:#777;margin-top:2em}
+
+@media (prefers-color-scheme:dark){
+  body{background:#161616;color:#ccc}
+  h2,small,.hint,td,th,footer,header p,dt{color:#999}
+  hr{border-color:#333}
+  .v{background:#202020}
+  button{color:#ccc;border-color:#666}
+  button[aria-pressed=true]{background:#ddd;color:#111;border-color:#ddd}
+  .n,a,button.link,details summary{color:#5bc}
+  .n{border-color:#5bc}
+  .n.drag{background:#5bc;color:#111}
+  .n:focus-visible,button:focus-visible{outline-color:#5bc}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Do I need salt?</h1>
+  <p>Drag the numbers. The page only asks for what it needs.</p>
+</header>
+
+<section id="s1">
+  <h2>The event</h2>
+  <p>I'm going for <span class="n" data-k="dur"></span> at a sweat rate of <span class="n" data-k="rate"></span>. I weigh <span class="n" data-k="mass"></span>.</p>
+  <details>
+    <summary>I haven't measured my sweat rate</summary>
+    <small class="hint">Rough starting points, in L/h. A weigh-in before and after a session beats all of them.</small>
+    <table id="rate-grid"></table>
+  </details>
+</section>
+
+<section id="s2">
+  <h2>Fluid</h2>
+  <p>That's <span class="fx" id="loss"></span> of sweat. I'm fine finishing up to <span class="n" data-k="pct"></span> of body mass down, which is <span class="fx" id="accdef"></span>.</p>
+  <div id="g1"></div>
+  <div id="s2b" hidden>
+    <p>To finish within <span class="fx" id="pct2"></span> I need to drink at least <span class="fx" id="req"></span>. I'll actually drink <span class="n" data-k="intake"></span>, with <span class="n" data-k="salt"></span> of sodium in it.</p>
+    <small class="hint">Most people can take in 1.0 to 1.2 L/h during exercise; a trained gut manages more. Sodium at 0 shows what happens with none; drag it to see what any amount does.</small>
+    <div id="g2"></div>
+  </div>
+</section>
+
+<section id="s3" hidden>
+  <h2>Saltiness</h2>
+  <p>At <span class="fx" id="f-txt"></span> replacement it depends on how salty I sweat. My sweat is</p>
+  <p id="salt-chips">
+    <button type="button" data-na="average">average</button><button type="button" data-na="salty">salty</button><button type="button" data-na="very salty">very salty</button><button type="button" data-na="measured">measured</button>
+  </p>
+  <p id="measured-row" hidden>Whole-body sweat sodium <span class="n" data-k="na"></span>.</p>
+  <small class="hint" id="salt-hint"></small>
+  <div id="g3"></div>
+</section>
+
+<div class="out" id="outcome"></div>
+
+<section id="s4">
+  <h2>Afterwards</h2>
+  <div id="after"></div>
+</section>
+
+<footer>
+  Kurtz–Nguyen mass balance, as used in <a href="https://doi.org/10.1186/s44410-025-00011-9">McCubbin (2025)</a>. Starting plasma sodium 140 mmol/L, body water 60% of mass, sweat potassium 3.5 mmol/L, no urine. Modelling only, not medical advice.
+  Sources: <a href="https://doi.org/10.1186/s44410-025-00011-9">McCubbin 2025</a> for the palatability limit, pre-loading, the 2 g diet threshold and post-exercise sodium; <a href="https://pubmed.ncbi.nlm.nih.gov/18450987/">Baker 2008</a> for the model's validation; <a href="https://pubmed.ncbi.nlm.nih.gov/24055782/">Wall 2015</a> for the blinded 3% trial.
+  <a href="full.html" id="full-link">Full model, with charts and every input</a>.
+  <button class="link" id="copylink" type="button">Copy a link to these numbers</button>
+</footer>
+
+<script>
+// The page in five parts:
+//   1. numbers you might want to change
+//   2. the model (three formulas)
+//   3. compute: turn the inputs into every number the page shows
+//   4. the flowchart: which verdicts appear
+//   5. the words: one function per verdict  <-- edit text here
+// Then the plumbing: draggable numbers, buttons, URL, render.
+
+// ---------- 1. numbers you might want to change ----------
+const NA_MG = 22.99;                 // mg of sodium per mmol
+const TBW_PCT = 0.60;                // body water as a share of body mass
+const NA0 = 140;                     // starting plasma sodium, mmol/L
+const K_SWEAT = 3.5;                 // sweat potassium, mmol/L
+const NA_MIN = 20, NA_MAX = 90;      // least and saltiest plausible whole-body sweat sodium, mmol/L
+const NA_FLOOR = 135, NA_CEIL = 145; // clinical reference range
+const GUT_CAP = 1.2;                 // suggested drinking rate is capped here, L/h
+const PALATABLE = 120;               // mg per 100 mL beyond which drinks stop being palatable (McCubbin 2025)
+const DIET_COVERS = 2000;            // mg of sodium deficit that a normal diet restores within a day (McCubbin 2025)
+const REHYD = 1.5;                   // drink this many times the deficit to get it all back (some goes to urine)
+const PRELOAD_ML_KG = 25, PRELOAD_KEPT = 0.55;  // pre-loading: 25 mL/kg with sodium, about half retained (McCubbin 2025)
+const SALT_LEVELS = { average: 45, salty: 70, "very salty": 90 };  // chip labels → whole-body sweat sodium, mmol/L
+const RATE_TABLE = {                 // sweat-rate helper, L/h, by exertion and conditions [cool, mild, hot]
+  easy: [0.5, 0.8, 1.1], steady: [0.7, 1.1, 1.5], hard: [0.9, 1.4, 1.9],
+};
+
+// The inputs. intake and saltMode start empty so the page can suggest them.
+const state = { dur: 3, rate: 1.4, mass: 75, pct: 2, intake: null, salt: 0, saltMode: null, na: 54 };
+
+// How each draggable number behaves: range, step, pixels per step, and how it prints.
+const NUMBERS = {
+  dur:    { min: 0.25, max: 24,  step: 0.25, px: 12, fmt: (v) => trim(v) + " h" },
+  rate:   { min: 0.2,  max: 3,   step: 0.05, px: 6,  fmt: (v) => v.toFixed(2) + " L/h" },
+  mass:   { min: 35,   max: 150, step: 0.5,  px: 4,  fmt: (v) => trim(v) + " kg" },
+  pct:    { min: 0.5,  max: 6,   step: 0.25, px: 12, fmt: (v) => trim(v) + "%" },
+  intake: { min: 0,    max: 2.5, step: 0.05, px: 6,  fmt: (v) => v.toFixed(2) + " L/h" },
+  salt:   { min: 0,    max: 3000, step: 50,  px: 2,  fmt: (v) => Math.round(v) + " mg/h" },
+  na:     { min: 10,   max: 120, step: 1,    px: 4,  fmt: (v) => Math.round(v) + " mmol/L" },
+};
+
+// ---------- 2. the model ----------
+// Kurtz–Nguyen: plasma sodium after sweating S litres, drinking I litres, and taking naIn mmol of sodium.
+function plasmaNa(S, I, naIn, sweatNa, tbw0) {
+  const tbw = tbw0 - S + I;
+  const dE = naIn - (sweatNa + K_SWEAT) * S;
+  return ((NA0 + 23.8) * tbw0 + 1.03 * dE) / tbw - 23.8;
+}
+// The crossover: the share of sweat you can replace before plasma sodium starts to fall. Depends only on sweat.
+function crossover(sweatNa) {
+  return 1 - (1.03 * (sweatNa + K_SWEAT)) / (NA0 + 23.8);
+}
+// The sodium (mmol) that makes plasma sodium finish exactly at `target`.
+function doseFor(target, S, I, sweatNa, tbw0) {
+  const tbw = tbw0 - S + I;
+  return Math.max(0, ((target + 23.8) * tbw - (NA0 + 23.8) * tbw0) / 1.03 + (sweatNa + K_SWEAT) * S);
+}
+
+// ---------- 3. compute ----------
+function compute() {
+  const c = {};
+  const tbw0 = state.mass * TBW_PCT;
+  const dur = state.dur;
+
+  // fluid
+  c.loss = state.rate * dur;                              // litres of sweat
+  c.allowed = (state.pct / 100) * state.mass;             // litres you're willing to be down
+  c.short = c.loss <= c.allowed;                          // gate 1: not enough sweat to matter
+  c.reqRate = c.short ? 0 : (c.loss - c.allowed) / dur;   // L/h needed to finish within the limit
+  c.intake = state.intake ?? Math.min(c.reqRate, GUT_CAP);
+  c.drank = Math.min(c.intake * dur, c.loss * 1.5);       // litres drunk
+  c.f = c.loss > 0 ? Math.min(1, c.drank / c.loss) : 0;   // share of sweat replaced
+  c.deficitPct = ((c.loss - c.drank) / state.mass) * 100;
+  c.fluidLimited = !c.short && c.intake < c.reqRate - 1e-6;
+
+  // saltiness
+  c.na = state.saltMode === "measured" ? state.na : (SALT_LEVELS[state.saltMode] ?? null);  // null = not asked yet
+  c.saltCouldMatter = !c.short && c.f >= crossover(NA_MAX);   // gate 2: above the crossover of even the saltiest sweat
+
+  // plasma sodium at the finish, for a given sweat sodium and sodium intake in mg/h
+  const finish = (sweatNa, mgPerHr) => plasmaNa(c.loss, c.drank, (mgPerHr * dur) / NA_MG, sweatNa, tbw0);
+  c.finishNone = (sweatNa) => finish(sweatNa, 0);
+  c.finishPlan = (sweatNa) => finish(sweatNa, state.salt);
+  // ranges across sweat types, used whenever saltiness is unknown
+  c.noneLo = c.finishNone(NA_MAX); c.noneHi = c.finishNone(NA_MIN);
+  c.planLo = c.finishPlan(NA_MAX); c.planHi = c.finishPlan(NA_MIN);
+  // bounds for the short case: drink nothing vs drink everything, no salt
+  c.boundUp = plasmaNa(c.loss, 0, 0, NA_MIN, tbw0) - NA0;
+  c.boundDown = plasmaNa(c.loss, c.loss, 0, NA_MAX, tbw0) - NA0;
+
+  // a sensible ceiling: the least of (reach 145), (replace 100% of sweat sodium), (stay palatable)
+  const ceiling = (sweatNaForCeil, sweatNaForFull) => {
+    const a = (doseFor(NA_CEIL, c.loss, c.drank, sweatNaForCeil, tbw0) * NA_MG) / dur;
+    const b = (sweatNaForFull * c.loss * NA_MG) / dur;
+    const p = c.drank > 0 ? (PALATABLE * c.drank * 10) / dur : Infinity;
+    const m = Math.min(a, b, p);
+    return { mgH: m, why: m === a ? "ceil" : m === b ? "full" : "pal" };
+  };
+  c.maxUnknown = ceiling(NA_MIN, NA_MAX);
+
+  // with saltiness known
+  if (c.na !== null) {
+    c.fstar = crossover(c.na);
+    c.above = c.f >= c.fstar;
+    c.holdMg = (doseFor(NA0, c.loss, c.drank, c.na, tbw0) * NA_MG) / dur;       // mg/h to hold plasma sodium flat
+    c.floorMg = (doseFor(NA_FLOOR, c.loss, c.drank, c.na, tbw0) * NA_MG) / dur; // mg/h to stay above 135
+    c.max = ceiling(c.na, c.na);
+    c.altIntake = (c.fstar * c.loss) / dur;                                       // drink this much and you're under the crossover
+  }
+  c.per100 = (mgH) => (c.drank > 0 ? Math.round((mgH * dur) / (c.drank * 10)) : 0);  // mg/h → mg per 100 mL of what you drink
+
+  // afterwards
+  c.lostMg = (c.na ?? SALT_LEVELS.average) * c.loss * NA_MG;
+  c.lostLoMg = NA_MIN * c.loss * NA_MG; c.lostHiMg = NA_MAX * c.loss * NA_MG;
+  c.takenMg = state.salt * dur;
+  c.netMg = Math.max(0, c.lostMg - c.takenMg);
+  c.deficitL = Math.max(0, c.loss - c.drank);
+
+  // pre-loading
+  c.preL = (PRELOAD_ML_KG * state.mass * PRELOAD_KEPT) / 1000;
+  c.preDeficitPct = ((c.loss - c.drank - c.preL) / state.mass) * 100;
+  return c;
+}
+
+// ---------- 4. the flowchart ----------
+// Returns the names of the verdicts to show, in order. Each name is a function in WORDS below.
+function flowchart(c) {
+  if (c.short) return ["shortEvent"];                       // gate 1
+  const out = [];
+  if (c.fluidLimited) out.push("fluidLimited");
+  if (!c.saltCouldMatter) out.push("seasonToTaste");        // gate 2: saltiness never asked
+  else if (c.na === null) out.push("askSaltiness");         // waiting for the chip
+  else out.push(c.above ? "saltMatters" : "seasonForYou");  // gate 3
+  return out;
+}
+
+// ---------- 5. the words ----------
+// One function per verdict. Each returns HTML. `c` is everything from compute(); `state` is the inputs.
+// box(kind, headline, ...paragraphs) makes a coloured box: "ok" green, "note" amber, "warn" red.
+const WORDS = {
+  shortEvent: (c) => box("ok", "Drink what you like. Salt to taste.",
+    `Even drinking nothing leaves you ${pct1(c.loss / state.mass)} down, inside your limit. Whatever you drink, with or without salt, plasma sodium finishes within about ${Math.max(-c.boundDown, c.boundUp).toFixed(0)} mmol/L of where it started (${(-c.boundDown).toFixed(1)} below to ${c.boundUp.toFixed(1)} above). You haven't sweated enough for sodium to matter.`,
+    `<b>Upper limit: ${mg(c.maxUnknown.mgH)} mg/h.</b> Above that even a low-salt sweater finishes past ${NA_CEIL}.`),
+
+  fluidLimited: (c) => box("warn", `That leaves you ${c.deficitPct.toFixed(1)}% down. Salt won't fix it.`,
+    (c.na !== null && c.above
+      ? "Your sweat is salty enough that plasma sodium still falls at this drinking rate; the dose below covers that."
+      : c.saltCouldMatter && c.na === null
+        ? "Unless you sweat very salty, plasma sodium rises whatever is in the bottle."
+        : "Plasma sodium rises whatever is in the bottle.")
+    + " The problem here is water. What helps is sweating less (easier pace, cooling, acclimatisation) and a gut trained to take more."
+    + ` Or loosen the ${NUMBERS.pct.fmt(state.pct)} above. One blinded trial found cyclists at 3% down rode a hot 25 km time trial no slower.`,
+    withYourSalt(c),
+    `<b>Pre-loading helps too.</b> ${PRELOAD_ML_KG} mL/kg (${((PRELOAD_ML_KG * state.mass) / 1000).toFixed(1)} L) with sodium at about 280 mg per 100 mL, 1 to 4 h before, keeps roughly ${c.preL.toFixed(1)} L on board and puts you at <b>${c.preDeficitPct.toFixed(1)}%</b> down instead of ${c.deficitPct.toFixed(1)}%${c.preDeficitPct <= state.pct + 0.05 ? ", inside your limit" : ""}. The evidence is from cycling in the heat; running, you carry the extra weight.`),
+
+  seasonToTaste: (c) => box(c.fluidLimited ? "note" : "ok", "Season to taste. How salty you sweat doesn't matter at this drinking rate.",
+    `You're replacing ${pct(c.f)} of losses. Plasma sodium rises however salty you sweat, finishing between ${c.noneLo.toFixed(1)} and ${c.noneHi.toFixed(1)} mmol/L with no sodium at all. Any sodium you take is for taste. You don't need a sweat test.`,
+    withYourSalt(c),
+    maxLine(c.maxUnknown, c)),
+
+  askSaltiness: () => "",   // step 3 is visible; nothing to say until a chip is picked
+
+  seasonForYou: (c) => box("ok", "Season to taste.",
+    `At ${Math.round(c.na)} mmol/L your crossover is ${pct(c.fstar)}, and you're replacing ${pct(c.f)}. Plasma sodium still ends up at ${c.finishNone(c.na).toFixed(1)} mmol/L, so salt is for taste. It starts to matter above ${lh(c.altIntake)}.`,
+    withYourSalt(c),
+    maxLine(c.max, c)),
+
+  saltMatters: (c) => {
+    const overPal = c.per100(c.holdMg) > PALATABLE;
+    const minimum = c.floorMg < 10 ? `none<small>you'd finish at ${c.finishNone(c.na).toFixed(1)} mmol/L with no sodium</small>`
+      : `${mg(c.floorMg)} mg/h<small>${c.per100(c.floorMg)} mg per 100 mL</small>`;
+    const maximum = c.max.mgH < c.holdMg + 25 ? `same as recommended<small>${c.max.why === "pal" ? "palatability caps it there" : "that already replaces everything you sweat out"}</small>`
+      : `${mg(c.max.mgH)} mg/h<small>${c.per100(c.max.mgH)} mg per 100 mL</small>`;
+    return box("note", "Salt matters at this drinking rate.",
+      `At ${Math.round(c.na)} mmol/L your crossover is ${pct(c.fstar)}, and you're replacing ${pct(c.f)}, so plasma sodium falls unless you put some back.`,
+      `<dl><dt>Recommended</dt><dd class="big">${mg(c.holdMg)} mg/h<small>${c.per100(c.holdMg)} mg per 100 mL</small> <button type="button" data-set-salt="${Math.round(c.holdMg)}">use it</button></dd>
+       <dt>Minimum</dt><dd>${minimum}</dd><dt>Maximum</dt><dd>${maximum}</dd></dl>`,
+      `Recommended holds plasma sodium where it started; minimum keeps it above ${NA_FLOOR} mmol/L. `
+      + (overPal ? `The recommended dose is past the ~${PALATABLE} mg per 100 mL where drinks stop being palatable, so put some of it in food or capsules.`
+                 : "For scale, a typical sports drink is 40 to 50 mg per 100 mL."),
+      withYourSalt(c),
+      `Or drink ${lh(c.altIntake)} instead and you're under the crossover with no salt needed, finishing ${(((c.loss - c.altIntake * state.dur) / state.mass) * 100).toFixed(1)}% down${c.altIntake < c.reqRate - 1e-6 ? `, past your ${NUMBERS.pct.fmt(state.pct)} limit` : ""}.`);
+  },
+
+  afterwards: (c) => {
+    const up = c.drank - c.loss;
+    const fluid = c.short && state.intake === null ? `You'll finish up to <b>${c.loss.toFixed(1)} L</b> down.`
+      : up > 0.05 ? `You'll finish <b>${up.toFixed(1)} L</b> up.` : `You'll finish <b>${c.deficitL.toFixed(1)} L</b> down.`;
+    const toDrink = c.short && state.intake === null ? c.loss : c.deficitL;
+    const lost = c.na !== null ? `<b>${g(c.lostMg)}</b> of sodium`
+      : `<b>about ${g(c.lostMg)}</b> of sodium for average sweat (${g(c.lostLoMg)} to ${g(c.lostHiMg)} across the range)`;
+    const taken = c.takenMg > 0 ? ` Your ${Math.round(state.salt)} mg/h puts ${g(c.takenMg)} back during the event, leaving <b>${g(c.netMg)}</b>.` : "";
+    const big = c.netMg >= DIET_COVERS;
+    return `<p>${fluid} ${toDrink > 0.05 ? `Drink about <b>${(toDrink * REHYD).toFixed(1)} L</b> over the next few hours to get it all back; some goes to urine.` : "Nothing to make up."}</p>
+      <p>You'll have sweated out ${lost}.${taken}</p>`
+      + (big
+        ? box("note", "Put some of that salt back today.",
+            `More than ${g(DIET_COVERS)} is roughly a day's intake. The kidneys hold onto sodium after exercise, so you don't need all of it back, but salt your food today, especially with another session inside 24 hours. If you rehydrate without a meal, 100 to 125 mg of sodium per 100 mL helps you keep the water instead of passing it.`)
+        : box("ok", "Normal food covers it.",
+            `Under about ${g(DIET_COVERS)}, a normal diet restores the balance within a day. Sodium in what you drink afterwards only matters if you aren't eating.`));
+  },
+};
+
+// Shared sentences.
+// What the sodium you've dialled in does. Empty when it's zero.
+function withYourSalt(c) {
+  if (state.salt <= 0) return "";
+  const per100 = c.per100(state.salt);
+  const result = c.na !== null
+    ? `plasma sodium finishes at ${c.finishPlan(c.na).toFixed(1)} mmol/L instead of ${c.finishNone(c.na).toFixed(1)}`
+    : `plasma sodium finishes between ${c.planLo.toFixed(1)} and ${c.planHi.toFixed(1)} mmol/L instead of ${c.noneLo.toFixed(1)} to ${c.noneHi.toFixed(1)}`;
+  const high = (c.na !== null ? c.finishPlan(c.na) : c.planLo) > NA_CEIL;
+  return `<b>With your ${Math.round(state.salt)} mg/h</b> (${per100} mg per 100 mL), ${result}.`
+    + (high ? ` That is above ${NA_CEIL}; it corrects itself after you stop, but there's no reason to push it there.` : "")
+    + (per100 > PALATABLE ? ` At ${per100} mg per 100 mL the drink will be hard to keep taking.` : "");
+}
+// The ceiling sentence for season-to-taste cases.
+function maxLine(m, c) {
+  const why = { ceil: `more than that pushes plasma sodium past ${NA_CEIL}`, full: "that already replaces everything you sweat out", pal: "beyond that the drink stops being palatable" };
+  return m.mgH < 25 ? `<b>Maximum: none.</b> Plasma sodium already finishes at or above ${NA_CEIL} with no sodium.`
+    : `<b>Maximum worth taking: ${mg(m.mgH)} mg/h</b> (${c.per100(m.mgH)} mg per 100 mL); ${why[m.why]}.`;
+}
+// The salt hint under the chips.
+function saltHint() {
+  if (state.saltMode === "measured") return "Use the whole-body value. Forearm or back patches read high; a test report usually gives an extrapolated number.";
+  if (state.saltMode) return "";
+  return `Salty: white crust on dark kit, sweat stings the eyes. Very salty: both, every session. Average is about ${SALT_LEVELS.average} mmol/L; salty about ${SALT_LEVELS.salty}; very salty about ${SALT_LEVELS["very salty"]}.`;
+}
+// The two big numbers at the bottom.
+function outcome(c) {
+  const down = c.short ? (c.loss / state.mass) * 100 : c.deficitPct;
+  const downLabel = c.short ? "down if you drink nothing" : down < -0.05 ? "up at finish" : "down at finish";
+  let na, naLabel;
+  if (c.na !== null) { na = c.finishPlan(c.na).toFixed(1); naLabel = state.salt > 0 ? `finish plasma sodium with your ${Math.round(state.salt)} mg/h, mmol/L` : "finish plasma sodium with no sodium, mmol/L"; }
+  else if (c.short) { na = "140 ± " + Math.max(-c.boundDown, c.boundUp).toFixed(0); naLabel = "finish plasma sodium, mmol/L"; }
+  else { na = `${Math.round(c.planLo)}–${Math.round(c.planHi)}`; naLabel = (state.salt > 0 ? `finish plasma sodium with your ${Math.round(state.salt)} mg/h` : "finish plasma sodium with no sodium") + ", least to saltiest sweat"; }
+  const naNum = c.na !== null ? c.finishPlan(c.na) : c.short ? NA0 : c.planLo;
+  const naNum2 = c.na !== null ? naNum : c.short ? NA0 : c.planHi;
+  const naBad = naNum < NA_FLOOR || naNum2 > NA_CEIL;
+  return `<div class="${c.deficitPct > state.pct + 0.05 ? "warn" : "ok"}"><b>${Math.abs(down).toFixed(1)}%</b><small>${downLabel}</small></div>
+          <div class="${naBad ? "warn" : "ok"}"><b>${na}</b><small>${naLabel}</small></div>`;
+}
+
+// ---------- plumbing ----------
+const $ = (id) => document.getElementById(id);
+const trim = (v) => v.toFixed(2).replace(/\.?0+$/, "");
+const pct = (x) => Math.round(x * 100) + "%";
+const pct1 = (x) => (x * 100).toFixed(1) + "%";
+const lh = (x) => x.toFixed(2) + " L/h";
+const mg = (x) => Math.round(x).toLocaleString("en-US");
+const g = (x) => (x / 1000).toFixed(1) + " g";
+const box = (kind, head, ...paras) => `<div class="v ${kind}"><b class="h">${head}</b>${paras.filter(Boolean).map((p) => (p.startsWith("<dl") ? p : `<p>${p}</p>`)).join("")}</div>`;
+
+// Draggable numbers: drag sideways, arrow keys, or double-click to type.
+function makeDraggable(el) {
+  const k = el.dataset.k, spec = NUMBERS[k];
+  const value = () => (k === "intake" && state.intake === null ? compute().intake : state[k]);
+  const set = (v) => { state[k] = +Math.min(spec.max, Math.max(spec.min, Math.round(v / spec.step) * spec.step)).toFixed(4); render(); };
+  let x0 = 0, v0 = 0, editing = false;
+  el.tabIndex = 0; el.title = "Drag sideways, use the arrow keys, or double-click to type";
+  el.addEventListener("pointerdown", (e) => { if (editing) return; x0 = e.clientX; v0 = value(); el.setPointerCapture(e.pointerId); el.classList.add("drag"); });
+  el.addEventListener("pointermove", (e) => { if (editing || !el.hasPointerCapture(e.pointerId)) return; const dx = e.clientX - x0; if (Math.abs(dx) > 2) set(v0 + (dx / spec.px) * spec.step); });
+  const stop = (e) => { if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId); el.classList.remove("drag"); };
+  el.addEventListener("pointerup", stop); el.addEventListener("pointercancel", stop);
+  el.addEventListener("keydown", (e) => {
+    if (editing) return;
+    const n = e.shiftKey ? 10 : 1;
+    if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); set(value() + spec.step * n); }
+    if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); set(value() - spec.step * n); }
+    if (e.key === "Enter") { e.preventDefault(); edit(); }
+  });
+  function edit() {
+    if (editing) return; editing = true;
+    const inp = document.createElement("input"); inp.type = "number"; inp.step = spec.step; inp.value = value();
+    el.textContent = ""; el.appendChild(inp); inp.focus(); inp.select();
+    const done = (commit) => { if (!editing) return; editing = false; const v = parseFloat(inp.value); if (commit && !Number.isNaN(v)) set(v); else render(); el.focus(); };
+    inp.addEventListener("blur", () => done(true));
+    inp.addEventListener("keydown", (e) => { e.stopPropagation(); if (e.key === "Enter") done(true); if (e.key === "Escape") done(false); });
+    inp.addEventListener("pointerdown", (e) => e.stopPropagation());
+  }
+  el.addEventListener("dblclick", edit);
+  el.refresh = () => { if (!editing) el.textContent = spec.fmt(value()); };
+}
+
+// The inputs live in the URL hash, so a link captures a scenario.
+const KEYS = Object.keys(state);
+function readHash() {
+  const q = new URLSearchParams(location.hash.slice(1));
+  for (const k of KEYS) {
+    if (!q.has(k)) continue;
+    const v = q.get(k);
+    state[k] = v === "" ? null : k === "saltMode" ? v : parseFloat(v);
+  }
+}
+function writeHash() {
+  const q = new URLSearchParams();
+  for (const k of KEYS) q.set(k, state[k] === null ? "" : String(state[k]));
+  history.replaceState(null, "", "#" + q.toString());
+}
+
+function render() {
+  const c = compute();
+  document.querySelectorAll(".n").forEach((el) => el.refresh());
+
+  // fluid step
+  $("loss").textContent = c.loss.toFixed(1) + " L";
+  $("accdef").textContent = c.allowed.toFixed(1) + " kg";
+  $("pct2").textContent = NUMBERS.pct.fmt(state.pct);
+  $("req").textContent = lh(c.reqRate);
+  $("s2b").hidden = c.short;
+
+  // saltiness step
+  $("s3").hidden = !c.saltCouldMatter;
+  $("f-txt").textContent = pct(c.f);
+  $("measured-row").hidden = state.saltMode !== "measured";
+  $("salt-hint").textContent = saltHint();
+  $("salt-chips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.na === state.saltMode)));
+  $("rate-grid").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(Math.abs(+b.dataset.v - state.rate) < 1e-6)));
+
+  // verdicts, placed under the step they belong to
+  const slots = { shortEvent: "g1", fluidLimited: "g2", seasonToTaste: "g2", askSaltiness: "g3", seasonForYou: "g3", saltMatters: "g3" };
+  $("g1").innerHTML = ""; $("g2").innerHTML = ""; $("g3").innerHTML = "";
+  for (const name of flowchart(c)) $(slots[name]).insertAdjacentHTML("beforeend", WORDS[name](c));
+  $("outcome").innerHTML = outcome(c);
+  $("after").innerHTML = WORDS.afterwards(c);
+  document.querySelectorAll("[data-set-salt]").forEach((b) => b.addEventListener("click", () => { state.salt = +b.dataset.setSalt; render(); }));
+
+  writeHash();
+  $("full-link").href = "full.html#" + new URLSearchParams({ mass: state.mass, tbwPct: 60, na0: NA0, sweatRate: state.rate, sweatNa: c.na ?? 50, sweatK: K_SWEAT, rampMin: 0, duration: state.dur, accDefPct: state.pct, maxIntake: Math.max(GUT_CAP, c.intake), plannedIntake: c.intake, auto: 0, naMgPerHr: Math.round(state.salt) });
+}
+
+// wire up
+readHash();
+document.querySelectorAll(".n").forEach(makeDraggable);
+$("rate-grid").innerHTML = `<tr><th></th><th>cool</th><th>mild</th><th>hot</th></tr>`
+  + Object.entries(RATE_TABLE).map(([ex, row]) => `<tr><th>${ex}</th>${row.map((v) => `<td><button type="button" data-v="${v}">${v.toFixed(1)}</button></td>`).join("")}</tr>`).join("");
+$("rate-grid").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { state.rate = +b.dataset.v; render(); }));
+$("salt-chips").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { state.saltMode = b.dataset.na; render(); }));
+$("copylink").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(location.href); $("copylink").textContent = "Link copied"; setTimeout(() => { $("copylink").textContent = "Copy a link to these numbers"; }, 1800); }
+  catch (e) { $("copylink").textContent = "Copy the address bar to share"; }
+});
+render();
+</script>
+</body>
+</html>

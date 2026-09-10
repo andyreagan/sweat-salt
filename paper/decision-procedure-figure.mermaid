@@ -1,0 +1,12 @@
+flowchart TD
+    A["Inputs (no sweat composition needed)<br/>sweat rate · duration · body mass<br/>max tolerable intake · acceptable BM deficit"] --> B["1. Total fluid loss<br/>= sweat rate × duration"]
+    B --> C["2. Required replacement<br/>= (loss − acceptable deficit) / loss"]
+    B --> D["3. Achievable replacement<br/>= (max intake × duration) / loss"]
+    C --> E{"4. Operating point<br/>= min(required, achievable)"}
+    D --> E
+    E -->|"achievable < required"| F["Fluid-limited<br/>Hydration is the binding constraint<br/>Plasma Na will rise · sodium irrelevant<br/>Output: projected BM deficit"]
+    E -->|"achievable ≥ required"| G["Sweat composition now needed<br/>whole-body [Na⁺] and [K⁺]"]
+    G --> H["Crossover f* = 1 − 1.03([Na⁺]+[K⁺]) / ([Na⁺]plasma + 23.8)"]
+    H --> I{"5. Operating point vs f*"}
+    I -->|"below f*"| J["Plasma Na rises<br/>Season to taste<br/>Output: projected BM deficit, projected plasma Na"]
+    I -->|"above f*"| K["Plasma Na falls without sodium<br/>Compute dose from Eq. 2 to hold plasma Na<br/>Output: mg/h, mg/100 mL, projected plasma Na with and without"]

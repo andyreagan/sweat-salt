@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A scroll-through of why plasma sodium rises when you sweat, when salt starts to matter, and where a popular decision tree gets it wrong.">
+<meta name="color-scheme" content="light dark">
+<title>Why Your Blood Gets Saltier</title>
+<style>
+body{margin:0;line-height:1.6;font-size:18px;color:#444;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fff}
+h1,h2,h3{line-height:1.2}
+a{color:#07a}
+small{font-size:.8em;color:#777}
+.intro,.outro{max-width:650px;margin:40px auto;padding:0 10px}
+.intro h1{font-size:2.2em;margin:.2em 0}
+.intro p:first-of-type{color:#777}
+
+/* the scrolly: text on the left, sticky graphic on the right */
+.scrolly{display:flex;max-width:1100px;margin:0 auto;padding:0 10px;gap:40px}
+.steps{flex:0 0 340px}
+.step{min-height:85vh;display:flex;align-items:center;opacity:.35;transition:opacity .3s}
+.step.active{opacity:1}
+.step p{margin:0 0 .6em}
+.step .k{font-weight:700}
+.graphic{flex:1;position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.graphic svg{width:100%;height:auto;max-height:80vh;overflow:visible}
+@media (max-width:760px){
+  .scrolly{flex-direction:column;gap:0}
+  .graphic{height:46vh;top:0;background:#fff;z-index:1;align-items:flex-start;padding-top:6px}
+  .graphic svg{max-height:44vh}
+  .steps{flex:1}
+  .step{min-height:60vh;align-items:flex-start}
+  .step>div{background:#fff;padding:.4em .6em;border-left:3px solid #ddd}
+}
+
+/* chart colours, via classes so dark mode works */
+.axis text{fill:#777;font-size:12px;font-family:inherit}
+.axis line,.axis path{stroke:#ccc}
+.grid line{stroke:#e4e4e4;stroke-dasharray:2 4}
+.band{fill:#2a78d6;fill-opacity:.09}
+.band-label,.note{fill:#777;font-size:12px}
+.title{fill:#444;font-size:14px;font-weight:600}
+.line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.s0{stroke:#2a78d6}.s1{stroke:#eb6834}.s2{stroke:#1baf7a}
+.dot.s0{fill:#2a78d6}.dot.s1{fill:#eb6834}.dot.s2{fill:#1baf7a}
+.end{font-size:13px;fill:#444;font-variant-numeric:tabular-nums}
+.ref{stroke:#999;stroke-dasharray:4 4}
+.gate{fill:#d33;fill-opacity:.06}
+.gate-line{stroke:#d33;stroke-dasharray:6 4;stroke-width:1.5}
+.gate-label{fill:#d33;font-size:12px}
+.bar{fill:#2a78d6}.bar.blood{fill:#d33}.bar.drink{fill:#1baf7a}
+.bar-label{fill:#444;font-size:13px}
+.bar-value{fill:#444;font-size:13px;font-variant-numeric:tabular-nums;font-weight:600}
+.curve{fill:none;stroke:#2a78d6;stroke-width:2.5}
+circle.pt{stroke:#fff;stroke-width:2}
+.pt.above{fill:#eb6834}.pt.below{fill:#2a78d6}
+.pt-label{font-size:12px;fill:#444}
+.area-above{fill:#eb6834;fill-opacity:.07}
+.area-below{fill:#2a78d6;fill-opacity:.07}
+@media (prefers-color-scheme:dark){
+  body,.graphic,.step>div{background:#161616;color:#ccc}
+  .step>div{border-color:#333}
+  .axis line,.axis path{stroke:#444}.grid line{stroke:#2a2a2a}
+  .title,.end,.bar-label,.bar-value,.pt-label{fill:#ccc}
+  .axis text,.band-label,.note{fill:#999}
+  circle.pt{stroke:#161616}
+  a{color:#5bc}
+}
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>Why your blood gets saltier when you sweat</h1>
+  <p>A scroll through the physiology behind <a href="./">Do I need salt?</a>, with the numbers moving.</p>
+  <p>Everything below comes from one mass-balance equation, the one McCubbin's 2025 review of sodium for athletes is built on. Scroll.</p>
+</div>
+
+<div class="scrolly">
+  <div class="steps" id="steps">
+    <div class="step" data-step="0"><div>
+      <p><span class="k">Sweat is salty. Blood is saltier.</span></p>
+      <p>Plasma sits at 140 mmol/L of sodium. Average sweat is about 45. Even a very salty sweater, the kind with white crust on their kit, is at 90.</p>
+      <p>A sports drink is about 20.</p>
+    </div></div>
+    <div class="step" data-step="1"><div>
+      <p><span class="k">So sweating concentrates your blood.</span></p>
+      <p>Three hours at 1.4 L/h with no drinking, average sweat. You lose 4.2 L of water but proportionally less sodium, and plasma sodium climbs to about 152.</p>
+      <p>Nothing about salt intake changes the direction. You are removing water faster than sodium.</p>
+    </div></div>
+    <div class="step" data-step="2"><div>
+      <p><span class="k">Drink half of it back. Still rising.</span></p>
+      <p>Replace 50% of the sweat with plain water and the climb is gentler, but it is still a climb.</p>
+    </div></div>
+    <div class="step" data-step="3"><div>
+      <p><span class="k">Drink 70%. Flat.</span></p>
+      <p>There is a replacement fraction where the water you drink exactly balances the water you lose relative to sodium. For average sweat it is about 70%. That is the crossover.</p>
+    </div></div>
+    <div class="step" data-step="4"><div>
+      <p><span class="k">Drink 90%. Now it falls.</span></p>
+      <p>Past the crossover, plain water dilutes you. This is the only situation in which salt in the bottle matters for blood chemistry, and it is the situation most people never reach.</p>
+    </div></div>
+    <div class="step" data-step="5"><div>
+      <p><span class="k">The crossover depends on one thing: how salty you sweat.</span></p>
+      <p>Not body mass, not duration, not sweat rate. Rearrange the equation and they all cancel.</p>
+      <p>Average sweat crosses at 70%. Salty sweat at 54%. Very salty at 41%.</p>
+    </div></div>
+    <div class="step" data-step="6"><div>
+      <p><span class="k">The rugby player.</span></p>
+      <p>McCubbin's own example: 95 kg, sweating 2.5 L/h for 80 minutes, allowed 500 mL of water. That is 15% replacement, far under any crossover.</p>
+      <p>Plasma sodium rises to 144 with no salt. Replace all the sodium he sweats and it rises to 148, above the reference range. Salt makes this case worse.</p>
+    </div></div>
+    <div class="step" data-step="7"><div>
+      <p><span class="k">The salty marathoner.</span></p>
+      <p>70 kg, sweat sodium 80 mmol/L, running a hot marathon at 1.4 L/h and drinking 1.0 L/h. That is 71% replacement, above their 47% crossover.</p>
+      <p>Plasma sodium falls through 135 at about 3.5 hours and finishes at 134.6.</p>
+    </div></div>
+    <div class="step" data-step="8"><div>
+      <p><span class="k">The decision tree never asks.</span></p>
+      <p>The review's Figure 3 starts with one question: is the event over 4 hours? If not, "season to taste."</p>
+      <p>This runner is under 4 hours the whole way. The tree's later branches would have caught them, but they never get there.</p>
+    </div></div>
+    <div class="step" data-step="9"><div>
+      <p><span class="k">What 1.2 g/h does.</span></p>
+      <p>Holding plasma sodium flat for this runner takes about 1,200 mg/h, which is 120 mg per 100 mL of what they drink, nearly three times a sports drink and at the edge of what people will keep drinking. It is the one case in this story where the salt is doing real work.</p>
+    </div></div>
+    <div class="step" data-step="10"><div>
+      <p><span class="k">The heavy sweater.</span></p>
+      <p>87 kg in a heat chamber at 2.4 L/h, drinking 1 L/h. That is 41% replacement, under the crossover for average sweat.</p>
+      <p>Plasma sodium rises to 146 with no salt. Replace 100% of sweat sodium and it reaches 154. This athlete's problem is water, and no amount of salt fixes water.</p>
+    </div></div>
+    <div class="step" data-step="11"><div>
+      <p><span class="k">Where everyone lands.</span></p>
+      <p>Plot each athlete by how salty they sweat and how much they replace. Above the curve, salt matters. Below it, season to taste.</p>
+      <p>Most people, most days, are below.</p>
+    </div></div>
+  </div>
+  <div class="graphic"><svg id="chart"></svg></div>
+</div>
+
+<div class="outro">
+  <h2>Try your own numbers</h2>
+  <p><a href="./">The calculator</a> asks for duration, sweat rate and how much you'll drink, and only asks how salty you sweat if it matters. <a href="full.html">The full model</a> exposes every input.</p>
+  <p><small>Kurtz I, Nguyen MK. Clin Exp Nephrol 2003;7:138–43. McCubbin AJ. Performance Nutrition 2025;1:11. Assumes 60% body water, 140 mmol/L to start, 3.5 mmol/L sweat potassium, no urine. Modelling, not medical advice.</small></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/3.2.0/scrollama.min.js"></script>
+<script>
+// ---------- the model (same as the calculator) ----------
+const NA_MG = 22.99, TBW_PCT = 0.60, NA0 = 140, K_SWEAT = 3.5;
+function plasmaNa(S, I, naIn, sweatNa, tbw0) {
+  const tbw = tbw0 - S + I, dE = naIn - (sweatNa + K_SWEAT) * S;
+  return ((NA0 + 23.8) * tbw0 + 1.03 * dE) / tbw - 23.8;
+}
+const crossover = (sweatNa) => 1 - (1.03 * (sweatNa + K_SWEAT)) / (NA0 + 23.8);
+function doseFor(target, S, I, sweatNa, tbw0) {
+  const tbw = tbw0 - S + I;
+  return Math.max(0, ((target + 23.8) * tbw - (NA0 + 23.8) * tbw0) / 1.03 + (sweatNa + K_SWEAT) * S);
+}
+// a plasma-sodium trajectory: points every 5 minutes
+function traj(p, saltMgH) {
+  const tbw0 = p.mass * TBW_PCT, out = [];
+  for (let m = 0; m <= p.dur * 60 + 1e-9; m += 5) {
+    const h = m / 60, S = p.rate * h, I = p.intake * h, na = (saltMgH * h) / NA_MG;
+    out.push({ t: h, na: plasmaNa(S, I, na, p.sweatNa, tbw0) });
+  }
+  return out;
+}
+
+// ---------- the scenarios ----------
+const generic = { mass: 75, rate: 1.4, sweatNa: 45, dur: 3 };
+const rugby = { mass: 95, rate: 2.5, sweatNa: 60, dur: 80 / 60, intake: 0.375 };
+const marathoner = { mass: 70, rate: 1.4, sweatNa: 80, dur: 4, intake: 1.0 };
+const chamber = { mass: 87, rate: 2.41, sweatNa: 53.7, dur: 3, intake: 1.0 };
+const raceDay = { mass: 87, rate: 1.6, sweatNa: 53.7, dur: 3, intake: 1.0 };
+const holdDose = (p) => (doseFor(NA0, p.rate * p.dur, p.intake * p.dur, p.sweatNa, p.mass * TBW_PCT) * NA_MG) / p.dur;
+const fullDose = (p) => p.sweatNa * p.rate * NA_MG;
+
+// ---------- the scenes, one per step ----------
+const SCENES = [
+  { kind: "bars" },
+  { kind: "ts", p: { ...generic, intake: 0 }, series: [{ salt: 0, label: "no drinking" }], title: "Average sweat, 1.4 L/h, drinking nothing" },
+  { kind: "ts", p: { ...generic, intake: 0.7 }, series: [{ salt: 0, label: "50% replaced" }], title: "Drinking half of it back, plain water" },
+  { kind: "ts", p: { ...generic, intake: 0.98 }, series: [{ salt: 0, label: "70% replaced" }], title: "Drinking 70% back: the crossover" },
+  { kind: "ts", p: { ...generic, intake: 1.26 }, series: [{ salt: 0, label: "90% replaced" }], title: "Drinking 90% back, plain water" },
+  { kind: "curve", points: [] },
+  { kind: "ts", p: rugby, series: [{ salt: 0, label: "no salt" }, { salt: fullDose(rugby), label: "100% sodium replaced" }], title: "Rugby: 2.5 L/h, 500 mL allowed, 15% replaced" },
+  { kind: "ts", p: marathoner, series: [{ salt: 0, label: "no salt" }], title: "Marathoner: 80 mmol/L sweat, 71% replaced" },
+  { kind: "ts", p: marathoner, series: [{ salt: 0, label: "no salt" }], title: "Marathoner: 80 mmol/L sweat, 71% replaced", gate: 4 },
+  { kind: "ts", p: marathoner, series: [{ salt: 0, label: "no salt" }, { salt: holdDose({ ...marathoner, dur: 3.5 }), label: "1.2 g/h sodium" }], title: "Marathoner with the hold-flat dose" },
+  { kind: "ts", p: chamber, series: [{ salt: 0, label: "no salt" }, { salt: fullDose(chamber), label: "100% sodium replaced" }], title: "Heavy sweater: 2.4 L/h, drinking 1 L/h, 41% replaced" },
+  { kind: "curve", points: [
+    { name: "rugby", na: 60, f: 0.15 },
+    { name: "heavy sweater", na: 53.7, f: 0.41 },
+    { name: "race day", na: 53.7, f: 0.62 },
+    { name: "salty marathoner", na: 80, f: 0.71 },
+    { name: "average, drinks 90%", na: 45, f: 0.9 },
+  ] },
+];
+
+// ---------- drawing ----------
+const still = location.hash.includes("nojump");   // #scene=7&nojump: draw one scene, no animation, no scroll-driving
+const svg = d3.select("#chart");
+const M = { l: 48, r: 150, t: 36, b: 40 };
+let W = 640, H = 420, reveal = 1, current = -1;
+const layers = { bars: svg.append("g"), ts: svg.append("g"), curve: svg.append("g") };
+for (const k in layers) layers[k].attr("opacity", 0);
+const clipId = "reveal-clip";
+svg.append("clipPath").attr("id", clipId).append("rect").attr("x", 0).attr("y", 0).attr("height", 2000);
+
+function size() {
+  const box = document.querySelector(".graphic").getBoundingClientRect();
+  W = Math.max(320, Math.min(box.width, 760));
+  H = Math.round(Math.min(W * 0.66, window.innerHeight * 0.8, 480));
+  svg.attr("viewBox", `0 0 ${W} ${H}`).attr("width", W).attr("height", H);
+}
+
+function show(kind) {
+  for (const k in layers) (still ? layers[k] : layers[k].transition().duration(500)).attr("opacity", k === kind ? 1 : 0);
+}
+
+// scene 1: concentrations as bars
+function drawBars() {
+  const g = layers.bars;
+  g.selectAll("*").remove();
+  const rows = [
+    { label: "Blood plasma", v: 140, cls: "blood" },
+    { label: "Very salty sweat", v: 90, cls: "" },
+    { label: "Salty sweat", v: 70, cls: "" },
+    { label: "Average sweat", v: 45, cls: "" },
+    { label: "Sports drink", v: 20, cls: "drink" },
+  ];
+  const x = d3.scaleLinear().domain([0, 150]).range([M.l + 110, W - 40]);
+  const y = d3.scaleBand().domain(rows.map((r) => r.label)).range([M.t + 20, H - M.b]).padding(0.35);
+  g.append("text").attr("class", "title").attr("x", M.l).attr("y", M.t).text("Sodium, mmol per litre");
+  const row = g.selectAll("g.row").data(rows).join("g").attr("class", "row");
+  row.append("text").attr("class", "bar-label").attr("x", x(0) - 10).attr("y", (d) => y(d.label) + y.bandwidth() / 2 + 4).attr("text-anchor", "end").text((d) => d.label);
+  const rect = row.append("rect").attr("class", (d) => "bar " + d.cls).attr("x", x(0)).attr("y", (d) => y(d.label)).attr("height", y.bandwidth()).attr("rx", 3).attr("width", (d) => (still ? x(d.v) - x(0) : 0));
+  const val = row.append("text").attr("class", "bar-value").attr("x", (d) => x(d.v) + 8).attr("y", (d) => y(d.label) + y.bandwidth() / 2 + 4).text((d) => d.v).attr("opacity", still ? 1 : 0);
+  if (!still) {
+    rect.transition().duration(900).delay((d, i) => i * 90).attr("width", (d) => x(d.v) - x(0));
+    val.transition().delay((d, i) => 500 + i * 90).attr("opacity", 1);
+  }
+}
+
+// scene 2: plasma sodium over time
+function drawTs(sc) {
+  const g = layers.ts;
+  g.selectAll("*").remove();
+  const x = d3.scaleLinear().domain([0, sc.p.dur]).range([M.l, W - M.r]);
+  const y = d3.scaleLinear().domain([130, 156]).range([H - M.b, M.t + 10]);
+  g.append("text").attr("class", "title").attr("x", M.l).attr("y", M.t - 8).text(sc.title);
+  g.append("rect").attr("class", "band").attr("x", M.l).attr("y", y(145)).attr("width", W - M.l - M.r).attr("height", y(135) - y(145));
+  g.append("text").attr("class", "band-label").attr("x", M.l + 6).attr("y", y(145) + 13).text("normal range 135–145");
+  g.append("g").attr("class", "grid").selectAll("line").data(y.ticks(6)).join("line").attr("x1", M.l).attr("x2", W - M.r).attr("y1", y).attr("y2", y);
+  g.append("g").attr("class", "axis").attr("transform", `translate(0,${H - M.b})`).call(d3.axisBottom(x).ticks(Math.min(8, Math.round(sc.p.dur * 2))).tickFormat((d) => d + " h"));
+  g.append("g").attr("class", "axis").attr("transform", `translate(${M.l},0)`).call(d3.axisLeft(y).ticks(6));
+  g.append("line").attr("class", "ref").attr("x1", M.l).attr("x2", W - M.r).attr("y1", y(NA0)).attr("y2", y(NA0));
+  if (sc.gate) {
+    g.append("rect").attr("class", "gate").attr("x", M.l).attr("y", M.t + 10).attr("width", x(sc.gate) - M.l).attr("height", H - M.b - M.t - 10);
+    g.append("line").attr("class", "gate-line").attr("x1", x(sc.gate)).attr("x2", x(sc.gate)).attr("y1", M.t + 10).attr("y2", H - M.b);
+    g.append("text").attr("class", "gate-label").attr("x", x(sc.gate) - 6).attr("y", M.t + 24).attr("text-anchor", "end").text("under 4 h: “season to taste”");
+    g.append("text").attr("class", "gate-label").attr("x", x(sc.gate) - 6).attr("y", M.t + 40).attr("text-anchor", "end").text("the tree's first and only question");
+  }
+  const line = d3.line().x((d) => x(d.t)).y((d) => y(d.na));
+  const data = sc.series.map((s, i) => ({ ...s, i, pts: traj(sc.p, s.salt) }));
+  const lg = g.append("g").attr("clip-path", `url(#${clipId})`);
+  lg.selectAll("path").data(data).join("path").attr("class", (d) => "line s" + d.i).attr("d", (d) => line(d.pts));
+  const ends = g.append("g").attr("class", "ends");
+  const placed = [];
+  for (const d of data) {
+    const last = d.pts[d.pts.length - 1];
+    let ly = y(last.na) + 4; for (const q of placed) if (Math.abs(q - ly) < 14) ly = q + 14; placed.push(ly);
+    ends.append("circle").attr("class", "dot s" + d.i).attr("cx", x(last.t)).attr("cy", y(last.na)).attr("r", 4);
+    ends.append("text").attr("class", "end").attr("x", x(last.t) + 8).attr("y", ly).text(`${last.na.toFixed(1)}  ${d.label}`);
+  }
+  g._x = x;
+  applyReveal();
+}
+function applyReveal() {
+  const x = layers.ts._x; if (!x) return;
+  const sc = SCENES[current];
+  const w = sc && sc.kind === "ts" ? x(sc.p.dur * reveal) : 0;
+  svg.select(`#${clipId} rect`).attr("width", Math.max(0, w));
+  layers.ts.select("g.ends").attr("opacity", reveal > 0.98 ? 1 : 0);
+}
+
+// scene 3: the crossover curve
+function drawCurve(sc) {
+  const g = layers.curve;
+  g.selectAll("*").remove();
+  const x = d3.scaleLinear().domain([20, 90]).range([M.l, W - 40]);
+  const y = d3.scaleLinear().domain([0, 1]).range([H - M.b, M.t + 10]);
+  const pts = d3.range(20, 90.01, 1).map((na) => ({ na, f: crossover(na) }));
+  g.append("text").attr("class", "title").attr("x", M.l).attr("y", M.t - 8).text("The crossover: replace more than this and plasma sodium falls");
+  const area = d3.area().x((d) => x(d.na)).y0(y(0)).y1((d) => y(d.f));
+  const areaAbove = d3.area().x((d) => x(d.na)).y0((d) => y(d.f)).y1(y(1));
+  g.append("path").attr("class", "area-below").attr("d", area(pts));
+  g.append("path").attr("class", "area-above").attr("d", areaAbove(pts));
+  g.append("g").attr("class", "axis").attr("transform", `translate(0,${H - M.b})`).call(d3.axisBottom(x).ticks(7).tickFormat((d) => d + (d === 90 ? " mmol/L" : "")));
+  g.append("g").attr("class", "axis").attr("transform", `translate(${M.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(".0%")));
+  g.append("text").attr("class", "note").attr("x", W - 40).attr("y", H - M.b + 32).attr("text-anchor", "end").text("whole-body sweat sodium →");
+  g.append("text").attr("class", "note").attr("transform", `translate(${M.l - 38},${(H - M.b + M.t) / 2}) rotate(-90)`).attr("text-anchor", "middle").text("share of sweat replaced →");
+  g.append("text").attr("class", "note").attr("x", x(62)).attr("y", y(0.95)).text("salt matters up here");
+  g.append("text").attr("class", "note").attr("x", x(22)).attr("y", y(0.1)).text("season to taste down here");
+  g.append("line").attr("class", "ref").attr("x1", M.l).attr("x2", W - 40).attr("y1", y(0.7)).attr("y2", y(0.7));
+  g.append("text").attr("class", "note").attr("x", M.l + 6).attr("y", y(0.7) - 5).text("the review's 70% heuristic");
+  const path = g.append("path").attr("class", "curve").attr("d", d3.line().x((d) => x(d.na)).y((d) => y(d.f))(pts));
+  if (!still) {
+    const L = path.node().getTotalLength();
+    path.attr("stroke-dasharray", L).attr("stroke-dashoffset", L).transition().duration(1200).attr("stroke-dashoffset", 0);
+  }
+  for (const na of [45, 70, 90]) {
+    const dot = g.append("circle").attr("class", "dot s0").attr("cx", x(na)).attr("cy", y(crossover(na))).attr("r", 4).attr("opacity", still ? 1 : 0);
+    const lab = g.append("text").attr("class", "pt-label").attr("x", x(na) + 8).attr("y", y(crossover(na)) - 8).text(`${Math.round(crossover(na) * 100)}%`).attr("opacity", still ? 1 : 0);
+    if (!still) { dot.transition().delay(1100).attr("opacity", 1); lab.transition().delay(1100).attr("opacity", 1); }
+  }
+  const P = g.selectAll("g.ptg").data(sc.points).join("g").attr("class", "ptg").attr("opacity", still ? 1 : 0);
+  P.append("circle").attr("class", (d) => "pt " + (d.f >= crossover(d.na) ? "above" : "below")).attr("cx", (d) => x(d.na)).attr("cy", (d) => y(d.f)).attr("r", 6);
+  P.append("text").attr("class", "pt-label").attr("x", (d) => x(d.na) + 10).attr("y", (d) => y(d.f) + 4).text((d) => d.name);
+  if (!still) P.transition().delay((d, i) => 400 + i * 250).duration(400).attr("opacity", 1);
+}
+
+function render(i) {
+  current = i;
+  const sc = SCENES[i];
+  size();
+  if (sc.kind === "bars") drawBars();
+  if (sc.kind === "ts") drawTs(sc);
+  if (sc.kind === "curve") drawCurve(sc);
+  show(sc.kind);
+}
+
+// ---------- scrollama ----------
+const scroller = scrollama();
+if (!still) scroller.setup({ step: ".step", offset: 0.55, progress: true })
+  .onStepEnter((r) => {
+    document.querySelectorAll(".step").forEach((el) => el.classList.toggle("active", el === r.element));
+    reveal = r.direction === "up" ? 1 : 0;
+    render(+r.element.dataset.step);
+  })
+  .onStepProgress((r) => {
+    if (+r.element.dataset.step !== current) return;
+    reveal = Math.min(1, r.progress * 1.8);  // the line finishes drawing about halfway through the step
+    applyReveal();
+  });
+window.addEventListener("resize", () => { scroller.resize(); if (current >= 0) { reveal = 1; render(current); } });
+// open a scene directly with #scene=7 (handy for linking and for checking layouts)
+const first = +(new URLSearchParams(location.hash.slice(1)).get("scene") || 0);
+size(); reveal = 1; render(Number.isFinite(first) ? first : 0);
+if (still) document.querySelector(`.step[data-step="${first}"]`)?.classList.add("active");
+if (first > 0 && !still) document.querySelector(`.step[data-step="${first}"]`)?.scrollIntoView({ block: "center" });
+</script>
+</body>
+</html>
