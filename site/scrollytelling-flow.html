@@ -231,7 +231,7 @@ function makeViz(svgEl) {
   const svg = d3.select(svgEl);
   let W = 640, H = 520;
   const fig = { x: 0, y: 0, s: 1 };
-  const V = { drops: [], shown: { na: NA0, frac: 1 }, target: null, recovering: false, last: 0 };
+  const V = { drops: [], shown: { na: NA0, frac: 1, spin: 0 }, target: null, recovering: false, last: 0, fan: null };
   const clipId = "clip-" + svgEl.id;
   svg.append("clipPath").attr("id", clipId).append("path").attr("d", FIGURE);
   const gBottles = svg.append("g"), gFig = svg.append("g"), gDrops = svg.append("g"), gText = svg.append("g"), gTrace = svg.append("g"), gLegend = svg.append("g");
@@ -244,7 +244,10 @@ function makeViz(svgEl) {
   const readUnit2 = gText.append("text").attr("class", "readout-unit").text("of body weight lost");
   const stats = gText.append("text").attr("class", "label");
   const note = gText.append("text").attr("class", "label recover");
+  const gFan = gTrace.append("g");
   const traceLine = gTrace.append("path").attr("class", "trace");
+  const zLabel = gTrace.append("text").attr("class", "label");
+  const soFar = gTrace.append("text").attr("class", "label");
   const trace = {};
 
   function layout() {
@@ -264,10 +267,12 @@ function makeViz(svgEl) {
     note.attr("x", rx).attr("y", fig.y + 114);
     trace.x = rx; trace.y = fig.y + 140; trace.w = W - rx - 16; trace.h = 260 * fig.s - 140;
     trace.yS = d3.scaleLinear().domain([130, 156]).range([trace.y + trace.h, trace.y]);
-    gTrace.selectAll(":not(path)").remove();
-    gTrace.insert("rect", "path").attr("class", "band").attr("x", trace.x).attr("y", trace.yS(145)).attr("width", trace.w).attr("height", trace.yS(135) - trace.yS(145));
-    gTrace.insert("g", "path").attr("class", "axis").attr("transform", `translate(${trace.x},0)`).call(d3.axisLeft(trace.yS).ticks(4).tickSize(-trace.w)).call((a) => a.select(".domain").remove());
-    gTrace.append("text").attr("class", "label").attr("x", trace.x).attr("y", trace.y - 6).text("so far");
+    gTrace.selectAll("rect.band, g.axis").remove();
+    gTrace.insert("rect", ":first-child").attr("class", "band").attr("x", trace.x).attr("y", trace.yS(145)).attr("width", trace.w * 0.68).attr("height", trace.yS(135) - trace.yS(145));
+    gTrace.insert("g", ":first-child").attr("class", "axis").attr("transform", `translate(${trace.x},0)`).call(d3.axisLeft(trace.yS).ticks(4).tickSize(-trace.w * 0.68)).call((a) => a.select(".domain").remove());
+    soFar.attr("x", trace.x).attr("y", trace.y - 6).text("so far");
+    trace.xS = d3.scaleLinear().domain([0, 1]).range([trace.x, trace.x + trace.w * 0.68]);   // time runs across the front plane
+    trace.dz = { x: trace.w * 0.3, y: -trace.h * 0.6 };                                      // the z-axis recedes up and to the right
     legend();
   }
   function legend() {
@@ -302,19 +307,45 @@ function makeViz(svgEl) {
     if (n > 0) gBottles.append("text").attr("class", "label").attr("x", x0).attr("y", y0 - 12).text(`${total.toFixed(1)} L planned, ${Math.min(total, drunk).toFixed(1)} L drunk`);
   }
 
-  // the trace of plasma sodium through the scene so far
-  function tracePath(sc, upTo, s) {
+  // the trace. Time scenes: one curve of plasma sodium so far, time across.
+  // Sweep scenes: time still runs across; the swept variable becomes a z-axis and each value gets its own
+  // curve, fanned back into the page. The fan tilts in as the scene enters (V.shown.spin) and fills in as the sweep advances.
+  function timeCurve(p, salt, upTo) {
     const pts = [];
-    for (let i = 0; i <= 60; i++) {
-      const f = i / 60; if (f > upTo + 1e-9) break;
-      let v;
-      if (sc.drive === "time") v = at(s.p, s.p.dur * f, s.salt).na;
-      else if (sc.drive === "intake") v = at({ ...s.p, intake: s.p.rate * f }, s.p.dur, s.salt).na;
-      else v = at({ ...s.p, sweatNa: 20 + 70 * f }, s.p.dur, s.salt).na;
-      pts.push([f, v]);
+    for (let i = 0; i <= 40; i++) { const f = i / 40; if (f > upTo + 1e-9) break; pts.push([f, at(p, p.dur * f, salt).na]); }
+    return pts;
+  }
+  function tracePath(sc, upTo, s) {
+    if (sc.drive === "time") {
+      V.fan = null; gFan.selectAll("*").remove(); zLabel.text(""); soFar.text("so far");
+      traceLine.attr("d", d3.line().x((d) => trace.xS(d[0])).y((d) => trace.yS(d[1]))(timeCurve(s.p, s.salt, upTo)));
+      return;
     }
-    const x = d3.scaleLinear().domain([0, 1]).range([trace.x, trace.x + trace.w]);
-    traceLine.attr("d", d3.line().x((d) => x(d[0])).y((d) => trace.yS(d[1]))(pts));
+    const N = 6;    // curves in the fan
+    const curves = d3.range(N + 1).map((k) => {
+      const z = k / N;
+      const p = sc.drive === "intake" ? { ...sc.p, intake: sc.p.rate * z } : { ...sc.p, sweatNa: 20 + 70 * z };
+      return { z, pts: timeCurve(p, sc.salt, 1), shown: z <= upTo + 1e-9 };
+    });
+    V.fan = { curves, current: Math.round(upTo * N) / N };
+    traceLine.attr("d", null);
+    zLabel.text(sc.drive === "intake" ? "back: drinking 100% of sweat" : "back: sweat sodium 90");
+    soFar.text(sc.drive === "intake" ? "time across; front curve drinks nothing, each curve back drinks more" : "time across; front curve is low-sodium sweat, each curve back is saltier");
+    drawFan();
+  }
+  function drawFan() {
+    if (!V.fan) return;
+    const sp = V.shown.spin;
+    const proj = (d, z) => [trace.xS(d[0]) + trace.dz.x * z * sp, trace.yS(d[1]) + trace.dz.y * z * sp];
+    const line = (z) => d3.line().x((d) => proj(d, z)[0]).y((d) => proj(d, z)[1]);
+    const back = [...V.fan.curves].reverse();   // draw the far curves first
+    gFan.selectAll("path").data(back, (d) => d.z).join("path")
+      .attr("d", (d) => line(d.z)(d.pts))
+      .attr("fill", "none")
+      .attr("stroke", (d) => colour(d.pts[d.pts.length - 1][1]))
+      .attr("stroke-width", (d) => (Math.abs(d.z - V.fan.current) < 1e-6 ? 3 : 1.5))
+      .attr("opacity", (d) => (d.shown ? (Math.abs(d.z - V.fan.current) < 1e-6 ? 1 : 0.55) : 0.08));
+    zLabel.attr("x", trace.xS(0) + trace.dz.x * sp + 4).attr("y", trace.yS(NA0) + trace.dz.y * sp - 8).attr("opacity", sp);   // sits where the back curve starts
   }
 
   // set what the figure should be showing; the frame loop glides toward it.
@@ -329,7 +360,7 @@ function makeViz(svgEl) {
     }
     const recovering = s.phase === "recover";
     V.target = { na: recovering ? NA0 : s.na, frac: recovering ? 1 : Math.max(0.12, 1 - LEVEL_X * (1 - s.tbw / s.tbw0)), s, sc, prog };
-    if (snap || still) V.shown = { na: V.target.na, frac: V.target.frac };
+    if (snap || still) V.shown = { na: V.target.na, frac: V.target.frac, spin: sc.drive === "time" ? 0 : 1 };
     title.text(sc.title + (s.phase === "hold" ? "  ·  finished" : recovering ? "  ·  recovering" : ""));
     bottles(s);
     tracePath(sc, s.f, s);
@@ -358,6 +389,8 @@ function makeViz(svgEl) {
     const k = 1 - Math.exp(-dt / 0.35);
     const gapNa = V.target.na - V.shown.na, gapFrac = V.target.frac - V.shown.frac;
     V.shown.na += gapNa * k; V.shown.frac += gapFrac * k;
+    const spinTo = V.target.sc.drive === "time" ? 0 : 1;
+    if (Math.abs(spinTo - V.shown.spin) > 0.002) { V.shown.spin += (spinTo - V.shown.spin) * (1 - Math.exp(-dt / 0.6)); drawFan(); }
     V.recovering = Math.abs(gapNa) > 0.4 || Math.abs(gapFrac) > 0.02;
     note.text(V.target.s.phase === "recover" ? "drinking back what was lost, salt from the next meal" : "");
     paint();
