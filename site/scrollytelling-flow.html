@@ -99,9 +99,9 @@ small{font-size:.8em;color:#777}
       <p>Past the crossover, plain water dilutes the blood and the number goes down. This is the only situation in which salt in the drink changes blood chemistry. Most people never reach it, because drinking 90% of what you sweat is hard to do.</p>
     </div></div>
     <div class="step" data-step="5"><div>
-      <p><span class="k">Sweep the drinking rate.</span></p>
-      <p>Same three hours, same sweat, drinking from nothing up to everything. Red on the left, blue on the right, grey-green at 70%.</p>
-      <p>Body size doesn't move that point. Nor does how long you go, or how much you sweat. Only how salty the sweat is.</p>
+      <p><span class="k">Every drinking rate at once.</span></p>
+      <p>Same three hours, same sweat, one curve for each drinking rate from nothing up to everything. Then collapse each curve to where it finishes, and spread those finishes out by how dehydrated you are.</p>
+      <p>Drinking more moves you left, and down. Now add salt to the bottles, half of what you sweat and then all of it: the coloured points. Salt moves you straight up. It never moves you left.</p>
     </div></div>
     <div class="step" data-step="6"><div>
       <p><span class="k">A rugby player.</span></p>
@@ -131,7 +131,7 @@ small{font-size:.8em;color:#777}
     </div></div>
     <div class="step" data-step="12"><div>
       <p><span class="k">Same drinking, different sweat.</span></p>
-      <p>Three hours, 70% replaced, plain water, and sweat getting saltier from left to right. People with low-sodium sweat end up saltier than they started. People with salty sweat end up more dilute.</p>
+      <p>Three hours, 70% replaced, plain water, and one curve for each sweat saltiness from 20 to 90. Everyone finishes equally dehydrated, so the finishes stack in a column. People with low-sodium sweat end up saltier than they started; people with salty sweat end up more dilute. Salt in the bottle slides the column up.</p>
       <p>The crossover is a property of your sweat, and that is the one thing a sweat test can tell you.</p>
     </div></div>
   </div>
@@ -231,7 +231,7 @@ function makeViz(svgEl) {
   const svg = d3.select(svgEl);
   let W = 640, H = 520;
   const fig = { x: 0, y: 0, s: 1 };
-  const V = { drops: [], shown: { na: NA0, frac: 1, spin: 0 }, target: null, recovering: false, last: 0, fan: null };
+  const V = { drops: [], shown: { na: NA0, frac: 1 }, target: null, recovering: false, last: 0 };
   const clipId = "clip-" + svgEl.id;
   svg.append("clipPath").attr("id", clipId).append("path").attr("d", FIGURE);
   const gBottles = svg.append("g"), gFig = svg.append("g"), gDrops = svg.append("g"), gText = svg.append("g"), gTrace = svg.append("g"), gLegend = svg.append("g");
@@ -244,10 +244,11 @@ function makeViz(svgEl) {
   const readUnit2 = gText.append("text").attr("class", "readout-unit").text("of body weight lost");
   const stats = gText.append("text").attr("class", "label");
   const note = gText.append("text").attr("class", "label recover");
-  const gFan = gTrace.append("g");
+  const gLines = gTrace.append("g"), gPts = gTrace.append("g"), gXAxis = gTrace.append("g").attr("class", "axis"), gXAxis2 = gTrace.append("g").attr("class", "axis");
   const traceLine = gTrace.append("path").attr("class", "trace");
-  const zLabel = gTrace.append("text").attr("class", "label");
   const soFar = gTrace.append("text").attr("class", "label");
+  const xTitle = gTrace.append("text").attr("class", "label"), xTitle2 = gTrace.append("text").attr("class", "label");
+  const saltKey = gTrace.append("text").attr("class", "label");
   const trace = {};
 
   function layout() {
@@ -266,13 +267,20 @@ function makeViz(svgEl) {
     stats.attr("x", rx).attr("y", fig.y + 94);
     note.attr("x", rx).attr("y", fig.y + 114);
     trace.x = rx; trace.y = fig.y + 140; trace.w = W - rx - 16; trace.h = 260 * fig.s - 140;
-    trace.yS = d3.scaleLinear().domain([130, 156]).range([trace.y + trace.h, trace.y]);
-    gTrace.selectAll("rect.band, g.axis").remove();
-    gTrace.insert("rect", ":first-child").attr("class", "band").attr("x", trace.x).attr("y", trace.yS(145)).attr("width", trace.w * 0.68).attr("height", trace.yS(135) - trace.yS(145));
-    gTrace.insert("g", ":first-child").attr("class", "axis").attr("transform", `translate(${trace.x},0)`).call(d3.axisLeft(trace.yS).ticks(4).tickSize(-trace.w * 0.68)).call((a) => a.select(".domain").remove());
-    soFar.attr("x", trace.x).attr("y", trace.y - 6).text("so far");
-    trace.xS = d3.scaleLinear().domain([0, 1]).range([trace.x, trace.x + trace.w * 0.68]);   // time runs across the front plane
-    trace.dz = { x: trace.w * 0.3, y: -trace.h * 0.6 };                                      // the z-axis recedes up and to the right
+    trace.yS = d3.scaleLinear().domain([130, 160]).range([trace.y + trace.h, trace.y]);
+    trace.h -= 18;   // room for an x-axis
+    trace.yS.range([trace.y + trace.h, trace.y]);
+    gTrace.selectAll("rect.band, g.yaxis").remove();
+    gTrace.insert("rect", ":first-child").attr("class", "band").attr("x", trace.x).attr("y", trace.yS(145)).attr("width", trace.w).attr("height", trace.yS(135) - trace.yS(145));
+    gTrace.insert("g", ":first-child").attr("class", "axis yaxis").attr("transform", `translate(${trace.x},0)`).call(d3.axisLeft(trace.yS).ticks(4).tickSize(-trace.w)).call((a) => a.select(".domain").remove());
+    soFar.attr("x", trace.x).attr("y", trace.y - 6);
+    trace.xS = d3.scaleLinear().domain([0, 1]).range([trace.x, trace.x + trace.w]);        // time, as a share of the event
+    trace.xB = d3.scaleLinear().domain([0, 7]).range([trace.x, trace.x + trace.w]);        // % of body weight lost, for the scatter
+    gXAxis.attr("transform", `translate(0,${trace.y + trace.h})`);
+    gXAxis2.attr("transform", `translate(0,${trace.y + trace.h})`).call(d3.axisBottom(trace.xB).ticks(7).tickFormat((d) => d + "%")).call((a) => a.select(".domain").remove());
+    xTitle.attr("x", trace.x + trace.w).attr("y", trace.y + trace.h + 30).attr("text-anchor", "end").text("time →");
+    xTitle2.attr("x", trace.x + trace.w).attr("y", trace.y + trace.h + 30).attr("text-anchor", "end").text("% of body weight lost →");
+    saltKey.attr("x", trace.x).attr("y", trace.y + trace.h + 30);
     legend();
   }
   function legend() {
@@ -307,45 +315,67 @@ function makeViz(svgEl) {
     if (n > 0) gBottles.append("text").attr("class", "label").attr("x", x0).attr("y", y0 - 12).text(`${total.toFixed(1)} L planned, ${Math.min(total, drunk).toFixed(1)} L drunk`);
   }
 
-  // the trace. Time scenes: one curve of plasma sodium so far, time across.
-  // Sweep scenes: time still runs across; the swept variable becomes a z-axis and each value gets its own
-  // curve, fanned back into the page. The fan tilts in as the scene enters (V.shown.spin) and fills in as the sweep advances.
+  // The trace. Time scenes: one curve of blood sodium so far, time across.
+  // Sweep scenes run in three beats as you scroll: every value's curve is drawn on the same axes; the curves
+  // collapse to where they finish; the finishing points slide onto a scatter of body weight lost against blood
+  // sodium, and two more sets appear for 50% and 100% of sweat sodium replaced. Salt moves a point up, never left.
+  const SALT_LEVELS = [{ f: 0, c: "#2a78d6", t: "0%" }, { f: 0.5, c: "#eb6834", t: "50%" }, { f: 1, c: "#1baf7a", t: "100%" }];
   function timeCurve(p, salt, upTo) {
     const pts = [];
     for (let i = 0; i <= 40; i++) { const f = i / 40; if (f > upTo + 1e-9) break; pts.push([f, at(p, p.dur * f, salt).na]); }
     return pts;
   }
+  function xAxisTime(dur) {
+    gXAxis.call(d3.axisBottom(trace.xS).ticks(4).tickFormat((d) => (d * dur).toFixed(1).replace(/\.0$/, "") + " h")).call((a) => a.select(".domain").remove());
+  }
   function tracePath(sc, upTo, s) {
+    xAxisTime(s.p.dur);
     if (sc.drive === "time") {
-      V.fan = null; gFan.selectAll("*").remove(); zLabel.text(""); soFar.text("so far");
+      gLines.selectAll("*").remove(); gPts.selectAll("*").remove();
+      gXAxis.attr("opacity", 1); gXAxis2.attr("opacity", 0); xTitle.attr("opacity", 1); xTitle2.attr("opacity", 0); saltKey.text("");
+      soFar.text("so far");
       traceLine.attr("d", d3.line().x((d) => trace.xS(d[0])).y((d) => trace.yS(d[1]))(timeCurve(s.p, s.salt, upTo)));
       return;
     }
-    const N = 6;    // curves in the fan
-    const curves = d3.range(N + 1).map((k) => {
-      const z = k / N;
-      const p = sc.drive === "intake" ? { ...sc.p, intake: sc.p.rate * z } : { ...sc.p, sweatNa: 20 + 70 * z };
-      return { z, pts: timeCurve(p, sc.salt, 1), shown: z <= upTo + 1e-9 };
-    });
-    V.fan = { curves, current: Math.round(upTo * N) / N };
     traceLine.attr("d", null);
-    zLabel.text(sc.drive === "intake" ? "back: drinking 100% of sweat" : "back: sweat sodium 90");
-    soFar.text(sc.drive === "intake" ? "time across; front curve drinks nothing, each curve back drinks more" : "time across; front curve is low-sodium sweat, each curve back is saltier");
-    drawFan();
-  }
-  function drawFan() {
-    if (!V.fan) return;
-    const sp = V.shown.spin;
-    const proj = (d, z) => [trace.xS(d[0]) + trace.dz.x * z * sp, trace.yS(d[1]) + trace.dz.y * z * sp];
-    const line = (z) => d3.line().x((d) => proj(d, z)[0]).y((d) => proj(d, z)[1]);
-    const back = [...V.fan.curves].reverse();   // draw the far curves first
-    gFan.selectAll("path").data(back, (d) => d.z).join("path")
-      .attr("d", (d) => line(d.z)(d.pts))
-      .attr("fill", "none")
-      .attr("stroke", (d) => colour(d.pts[d.pts.length - 1][1]))
-      .attr("stroke-width", (d) => (Math.abs(d.z - V.fan.current) < 1e-6 ? 3 : 1.5))
-      .attr("opacity", (d) => (d.shown ? (Math.abs(d.z - V.fan.current) < 1e-6 ? 1 : 0.55) : 0.08));
-    zLabel.attr("x", trace.xS(0) + trace.dz.x * sp + 4).attr("y", trace.yS(NA0) + trace.dz.y * sp - 8).attr("opacity", sp);   // sits where the back curve starts
+    const K = 8;
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const drawn = clamp01(upTo / 0.35), collapse = clamp01((upTo - 0.35) / 0.2), morph = clamp01((upTo - 0.55) / 0.45);
+    const variants = d3.range(K + 1).map((k) => {
+      const z = k / K;
+      const p = sc.drive === "intake" ? { ...sc.p, intake: sc.p.rate * z } : { ...sc.p, sweatNa: 20 + 70 * z };
+      const end = at(p, p.dur, 0);
+      return { z, p, shown: z <= drawn + 1e-9, pts: timeCurve(p, 0, 1), bw: ((end.S - end.I) / p.mass) * 100 };
+    });
+    // beat 1 and 2: the curves, then their tails
+    gLines.selectAll("path").data(variants, (d) => d.z).join("path")
+      .attr("fill", "none").attr("stroke", "#888").attr("stroke-width", 1.5)
+      .attr("opacity", (d) => (d.shown ? 0.8 * (1 - morph) : 0))
+      .attr("d", (d) => d3.line().x((q) => trace.xS(q[0])).y((q) => trace.yS(q[1]))(d.pts.filter((q) => q[0] >= collapse - 1e-9)));
+    // beat 3: points, with salt variants
+    const dots = [];
+    for (const v of variants) for (const L of SALT_LEVELS) {
+      const salt = L.f * v.p.sweatNa * v.p.rate * NA_MG;                 // mg/h that replaces this share of sweat sodium
+      const na = at(v.p, v.p.dur, salt).na;
+      const na0 = v.pts[v.pts.length - 1][1];
+      const x0 = trace.xS(1), y0 = trace.yS(na0);                          // where the plain-water curve ends
+      const x1 = trace.xB(Math.max(0, v.bw)), y1 = trace.yS(na);           // where it lands on the scatter
+      dots.push({ id: v.z + "-" + L.f, c: L.c, base: L.f === 0, x: x0 + (x1 - x0) * morph, y: y0 + (y1 - y0) * morph,
+                  show: v.shown && (L.f === 0 ? collapse > 0 : morph > 0.3), o: L.f === 0 ? 1 : clamp01((morph - 0.3) / 0.4) });
+    }
+    gPts.selectAll("circle").data(dots, (d) => d.id).join("circle")
+      .attr("r", 4).attr("fill", (d) => d.c).attr("stroke", "#fff").attr("stroke-width", 1)
+      .attr("cx", (d) => d.x).attr("cy", (d) => d.y).attr("opacity", (d) => (d.show ? d.o : 0));
+    gXAxis.attr("opacity", 1 - morph); xTitle.attr("opacity", 1 - morph);
+    gXAxis2.attr("opacity", morph); xTitle2.attr("opacity", morph);
+    saltKey.attr("opacity", clamp01((morph - 0.3) / 0.4)).selectAll("*").remove();
+    if (morph > 0.3) {
+      saltKey.text("sweat sodium replaced: ");
+      for (const L of SALT_LEVELS) saltKey.append("tspan").attr("fill", L.c).attr("font-weight", 600).text(L.t + "  ");
+    } else saltKey.text("");
+    soFar.text(morph > 0.5 ? "where each finishes: further right is more dehydrated, higher is saltier blood"
+      : collapse > 0 ? "collapsing each curve to where it finishes"
+      : sc.drive === "intake" ? "one curve per drinking rate, from nothing to everything" : "one curve per sweat saltiness, 20 to 90");
   }
 
   // set what the figure should be showing; the frame loop glides toward it.
@@ -360,7 +390,7 @@ function makeViz(svgEl) {
     }
     const recovering = s.phase === "recover";
     V.target = { na: recovering ? NA0 : s.na, frac: recovering ? 1 : Math.max(0.12, 1 - LEVEL_X * (1 - s.tbw / s.tbw0)), s, sc, prog };
-    if (snap || still) V.shown = { na: V.target.na, frac: V.target.frac, spin: sc.drive === "time" ? 0 : 1 };
+    if (snap || still) V.shown = { na: V.target.na, frac: V.target.frac };
     title.text(sc.title + (s.phase === "hold" ? "  ·  finished" : recovering ? "  ·  recovering" : ""));
     bottles(s);
     tracePath(sc, s.f, s);
@@ -389,8 +419,6 @@ function makeViz(svgEl) {
     const k = 1 - Math.exp(-dt / 0.35);
     const gapNa = V.target.na - V.shown.na, gapFrac = V.target.frac - V.shown.frac;
     V.shown.na += gapNa * k; V.shown.frac += gapFrac * k;
-    const spinTo = V.target.sc.drive === "time" ? 0 : 1;
-    if (Math.abs(spinTo - V.shown.spin) > 0.002) { V.shown.spin += (spinTo - V.shown.spin) * (1 - Math.exp(-dt / 0.6)); drawFan(); }
     V.recovering = Math.abs(gapNa) > 0.4 || Math.abs(gapFrac) > 0.02;
     note.text(V.target.s.phase === "recover" ? "drinking back what was lost, salt from the next meal" : "");
     paint();
@@ -456,7 +484,7 @@ form.addEventListener("input", () => { if (!go.disabled) viz2.setTarget(formScen
 window.addEventListener("resize", () => { scroller.resize(); viz.layout(); viz2.layout(); viz.setTarget(SCENES[current], progress, true); viz2.setTarget(formScene(), 0, true); });
 const first = +(new URLSearchParams(location.hash.slice(1)).get("scene") || 0);
 current = Number.isFinite(first) ? first : 0;
-progress = still ? 0.7 : 1;   // in check mode, show the finished event (the hold phase)
+progress = still ? (parseFloat(new URLSearchParams(location.hash.slice(1)).get("p")) || 0.7) : 1;   // check mode: #scene=5&nojump&p=0.3 freezes a point in the step
 viz.layout(); viz2.layout();
 viz.setTarget(SCENES[current], progress, true);
 viz2.setTarget(formScene(), 0, true);
