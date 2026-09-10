@@ -77,20 +77,21 @@ small{font-size:.8em;color:#777}
     <div class="step" data-step="0"><div>
       <p><span class="k">This is you, as water.</span></p>
       <p>About 60% of your weight is water, and dissolved in it is sodium at about 140 mmol/L. Your body holds that number in a narrow band. Much lower and you get sick and confused; much higher and you get thirsty and hot.</p>
+      <p>Two numbers to watch. The first is that sodium concentration. The second is how much of your body weight you have lost as water: most people feel it above 2%, and everyone does above 4%.</p>
       <p>Sweat is far more dilute than blood. Average sweat is about 45; very salty sweat, the kind that leaves white crust on dark kit, is about 90. A sports drink is about 20, an electrolyte mix about 65. The scale at the bottom shows each.</p>
     </div></div>
     <div class="step" data-step="1"><div>
       <p><span class="k">Sweat for three hours. Drink nothing.</span></p>
-      <p>Sweat is mostly water with a little salt, and it is always less salty than blood. So every drop that leaves takes away more water than sodium, and the blood left behind gets <b>saltier</b>. The number goes up. Three hours of this with nothing to drink and you are above the normal range.</p>
-      <p>The body's answer to this is thirst.</p>
+      <p>Sweat is mostly water with a little salt, and it is always less salty than blood. So every drop that leaves takes away more water than sodium, and the blood left behind gets <b>saltier</b>. The number goes up.</p>
+      <p>But look at the second number. Three hours of this and you are more than 5% of your body weight down. That is the real cost of drinking nothing: not the salt, the water. The body's answer to both is thirst.</p>
     </div></div>
     <div class="step" data-step="2"><div>
       <p><span class="k">Drink half of it back.</span></p>
-      <p>Plain water coming in dilutes what's left. Four bottles over the three hours, emptying one after another, make the rise slower. They don't stop it. The blood still ends up saltier than it started.</p>
+      <p>Plain water coming in dilutes what's left. Four bottles over the three hours, emptying one after another, make the rise slower. They don't stop it. And you still finish nearly 3% down.</p>
     </div></div>
     <div class="step" data-step="3"><div>
       <p><span class="k">Drink 70%. The colour holds.</span></p>
-      <p>There is a drinking rate at which the dilution from the bottle exactly matches the concentration from sweating, and the blood stays where it started. For average sweat it's about 70% of what you sweat. Call it the crossover.</p>
+      <p>There is a drinking rate at which the dilution from the bottle exactly matches the concentration from sweating, and the blood stays where it started. For average sweat it's about 70% of what you sweat. Call it the crossover. It also happens to leave you under 2% down, which is where most people want to be.</p>
       <p>Drink less than that and your blood gets saltier no matter what else you do. Drink more and it gets more dilute.</p>
     </div></div>
     <div class="step" data-step="4"><div>
@@ -104,7 +105,7 @@ small{font-size:.8em;color:#777}
     </div></div>
     <div class="step" data-step="6"><div>
       <p><span class="k">A rugby player.</span></p>
-      <p>Big body, heavy sweat, and a game that allows one bottle in 80 minutes. He puts back 15% of what he loses. His blood gets saltier, up to the top of the normal range, with no salt taken at all.</p>
+      <p>Big body, heavy sweat, and a game that allows one bottle in 80 minutes. He puts back 15% of what he loses and finishes 3% down. His blood gets saltier, up to the top of the normal range, with no salt taken at all. The 3% is his problem.</p>
     </div></div>
     <div class="step" data-step="7"><div>
       <p><span class="k">Now he takes salt to "replace what he lost".</span></p>
@@ -122,7 +123,7 @@ small{font-size:.8em;color:#777}
     </div></div>
     <div class="step" data-step="10"><div>
       <p><span class="k">A heavy sweater.</span></p>
-      <p>Some people lose two and a half litres an hour in the heat. Drinking a litre an hour puts back less than half of it. The level drops fast and the blood gets saltier, past the top of the normal range. Well under the crossover, so thirst is the signal, not salt.</p>
+      <p>Some people lose two and a half litres an hour in the heat. Drinking a litre an hour puts back less than half of it. The level drops fast, nearly 5% down in three hours, and the blood gets saltier, past the top of the normal range. Well under the crossover, so thirst is the signal, not salt.</p>
     </div></div>
     <div class="step" data-step="11"><div>
       <p><span class="k">Replace all that sodium, and it goes higher still.</span></p>
@@ -238,7 +239,9 @@ function makeViz(svgEl) {
   gFig.append("path").attr("class", "figure").attr("d", FIGURE);
   const title = gText.append("text").attr("class", "label strong");
   const readout = gText.append("text").attr("class", "readout");
-  const readUnit = gText.append("text").attr("class", "readout-unit").text("plasma sodium, mmol/L");
+  const readUnit = gText.append("text").attr("class", "readout-unit").text("blood sodium, mmol/L");
+  const readout2 = gText.append("text").attr("class", "readout");
+  const readUnit2 = gText.append("text").attr("class", "readout-unit").text("of body weight lost");
   const stats = gText.append("text").attr("class", "label");
   const note = gText.append("text").attr("class", "label recover");
   const traceLine = gTrace.append("path").attr("class", "trace");
@@ -255,6 +258,8 @@ function makeViz(svgEl) {
     const rx = fig.x + 100 * fig.s + 40;
     readout.attr("x", rx).attr("y", fig.y + 46);
     readUnit.attr("x", rx).attr("y", fig.y + 66);
+    readout2.attr("x", rx + Math.min(190, (W - rx) * 0.5)).attr("y", fig.y + 46);
+    readUnit2.attr("x", rx + Math.min(190, (W - rx) * 0.5)).attr("y", fig.y + 66);
     stats.attr("x", rx).attr("y", fig.y + 94);
     note.attr("x", rx).attr("y", fig.y + 114);
     trace.x = rx; trace.y = fig.y + 140; trace.w = W - rx - 16; trace.h = 260 * fig.s - 140;
@@ -329,17 +334,21 @@ function makeViz(svgEl) {
     bottles(s);
     tracePath(sc, s.f, s);
     const down = ((s.S - s.I) / s.p.mass) * 100;
-    const parts = [`${s.h.toFixed(1)} h`, `${s.S.toFixed(1)} L out`, `${s.I.toFixed(1)} L in`, `${down.toFixed(1)}% down`];
+    const parts = [`${s.h.toFixed(1)} h`, `${s.S.toFixed(1)} L out`, `${s.I.toFixed(1)} L in`];
     if (s.salt > 0) parts.push(`${Math.round(s.salt)} mg/h salt`);
     if (sc.drive === "sweatNa") parts.push(`sweat ${Math.round(s.p.sweatNa)} mmol/L`);
     stats.text(parts.join("  ·  "));
     if (still) paint();
   }
 
+  // dehydration colour: fine to 2%, noticeable to 4%, serious beyond
+  const lostColour = (pct) => (pct <= 2 ? "#2a8a2a" : pct <= 4 ? "#c98500" : "#d33a2c");
   function paint() {
     const fh = 260 * V.shown.frac;
     fluid.attr("x", 0).attr("y", 260 - fh).attr("width", 100).attr("height", fh).attr("fill", colour(V.shown.na));
     readout.text(V.shown.na.toFixed(1)).attr("fill", d3.color(colour(V.shown.na)).darker(0.6));
+    const lost = ((1 - V.shown.frac) / LEVEL_X) * TBW_PCT * 100;   // undo the exaggeration; water lost as % of body weight
+    readout2.text((lost < -0.05 ? "+" : "") + Math.abs(lost).toFixed(1) + "%").attr("fill", lost < 0 ? "#5e9be0" : lostColour(lost));
   }
 
   // one animation frame: glide the shown state toward the target, move the drops
@@ -414,8 +423,9 @@ form.addEventListener("input", () => { if (!go.disabled) viz2.setTarget(formScen
 window.addEventListener("resize", () => { scroller.resize(); viz.layout(); viz2.layout(); viz.setTarget(SCENES[current], progress, true); viz2.setTarget(formScene(), 0, true); });
 const first = +(new URLSearchParams(location.hash.slice(1)).get("scene") || 0);
 current = Number.isFinite(first) ? first : 0;
+progress = still ? 0.7 : 1;   // in check mode, show the finished event (the hold phase)
 viz.layout(); viz2.layout();
-viz.setTarget(SCENES[current], still ? 0.7 : 1, true);   // in check mode, show the finished event (the hold phase)
+viz.setTarget(SCENES[current], progress, true);
 viz2.setTarget(formScene(), 0, true);
 if (still) document.querySelector(`.step[data-step="${current}"]`)?.classList.add("active");
 else if (first > 0) document.querySelector(`.step[data-step="${first}"]`)?.scrollIntoView({ block: "center" });
